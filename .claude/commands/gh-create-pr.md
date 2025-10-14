@@ -12,12 +12,13 @@ Create a pull request on GitHub and automatically merge it to the base branch.
    - Description (summarize all changes in the branch)
    - Base branch (default: master or main)
 5. Create PR using `gh pr create`
-6. **Automatically merge the PR** using `gh pr merge --squash` or `--merge`
+6. **Automatically merge the PR** using `gh pr merge --squash` (without --delete-branch flag)
 7. Switch back to master/main branch
 8. Pull the merged changes: `git pull origin master`
-9. Optionally delete the feature branch locally and remotely
+9. Merge master back into the feature branch to keep it up-to-date
+10. Switch back to the feature branch so user can continue working
 
-**IMPORTANT:** This command should work automatically - create PR, merge it, and sync master without asking for confirmation.
+**IMPORTANT:** This command should work automatically - create PR, merge it, sync master, and return to feature branch. DO NOT delete the feature branch as the user may want to continue working on it.
 
 ## Example Workflow
 
@@ -34,8 +35,8 @@ gh pr create \
   --body "Implements course listing, filtering, and search functionality" \
   --base master
 
-# Immediately merge the PR (squash commits)
-gh pr merge --squash --auto
+# Immediately merge the PR (squash commits, keep branch)
+gh pr merge --squash
 
 # Switch back to master
 git checkout master
@@ -43,9 +44,11 @@ git checkout master
 # Pull the merged changes
 git pull origin master
 
-# Clean up: delete feature branch
-git branch -d feature/course-catalog
-git push origin --delete feature/course-catalog
+# Merge master back into feature branch to keep it synced
+git checkout feature/course-catalog
+git merge master
+
+# Now you're back on the feature branch and can continue working
 ```
 
 ## PR Description Template
@@ -88,9 +91,9 @@ git log main..HEAD --pretty=format:"- %s"
 After merging PR:
 - Confirm PR was created and merged successfully
 - Show PR number and URL
-- Confirm you're back on master branch with latest changes
-- Show summary of what was merged
-- Confirm feature branch cleanup (if deleted)
+- Confirm master was updated with merged changes
+- Confirm feature branch was synced with master
+- Confirm you're back on the feature branch ready to continue working
 
 ## Advanced Options
 
