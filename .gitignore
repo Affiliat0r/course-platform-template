@@ -1,0 +1,89 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Testing
+/coverage
+/test-results
+/playwright-report
+/.nyc_output
+*.lcov
+
+# Next.js
+/.next/
+/out/
+.next
+out
+build
+
+# Production
+/build
+/dist
+
+# Misc
+.DS_Store
+*.pem
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment Variables
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Database
+*.db
+*.db-journal
+/prisma/*.db
+/prisma/*.db-journal
+
+# Logs
+logs
+*.log
+
+# OS
+Thumbs.db
+
+# Temp files
+*.tmp
+.temp
+tmp/
+
+# Claude Code
+.claude/.cache
+
+# Stripe CLI
+.stripe
+
+# Testing artifacts
+playwright/.cache
+test-results/
+screenshots/
+videos/
