@@ -1,14 +1,16 @@
 # Push Changes to GitHub
 
-Push your local commits to the remote GitHub repository.
+Automatically commit all changes and push to the remote GitHub repository.
 
 ## Instructions
 
 1. Check git status to see uncommitted changes
-2. If there are uncommitted changes, ask if user wants to commit them first
+2. If there are uncommitted changes, automatically stage and commit them with a meaningful message
 3. Show the commits that will be pushed
-4. Push to GitHub
-5. Handle any errors (e.g., need to pull first, upstream not set)
+4. Push to GitHub (use -u flag if upstream not set)
+5. Handle any errors (e.g., need to pull first)
+
+**IMPORTANT:** This command should work automatically without asking the user for confirmation. Just commit and push.
 
 ## Example Workflow
 
@@ -36,11 +38,10 @@ git push --force-with-lease
 ## Safety Checks
 
 Before pushing:
-- ✅ Verify branch name (don't accidentally push to main)
-- ✅ Check commit message quality
-- ✅ Confirm no sensitive data in commits (.env files, secrets)
-- ⚠️ Warn if force push is needed
-- ⚠️ Warn if pushing to main/master without PR
+- ✅ Verify branch name (warn if pushing to main/master)
+- ✅ Check for sensitive data in commits (.env files, secrets, API keys)
+- ✅ Generate meaningful commit message based on the changes
+- ⚠️ Only warn if force push is needed (don't ask, just inform)
 
 ## Common Scenarios
 
@@ -66,4 +67,4 @@ git push --force-with-lease
 After pushing:
 - Confirm push was successful
 - Show GitHub URL for the branch
-- Optionally ask if user wants to create a PR
+- Summary of what was committed and pushed
