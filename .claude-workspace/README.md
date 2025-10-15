@@ -449,3 +449,105 @@ Use [tdd-cycle-status.md](tdd-cycle-status.md) to track current state:
 Let the cycle guide you. Trust the process.
 
 🔴 Write a test → 🟢 Make it pass → 🔵 Make it better → Repeat
+
+---
+
+## Git Worktree Integration
+
+This TDD workflow integrates seamlessly with **git worktrees** for true parallel development across multiple features.
+
+### Why Worktrees + TDD?
+
+**Worktrees** allow you to work on multiple branches simultaneously in separate directories, perfect for:
+- Running TDD cycles on different features in parallel
+- Quick context switching without losing work
+- Isolating experimental features
+- Handling hotfixes while continuing feature development
+
+### Worktree Commands
+
+Available slash commands for worktree management:
+
+- `/worktree-create` - Create new worktree for parallel development
+- `/worktree-list` - Show all worktrees with status
+- `/worktree-remove` - Safely remove completed worktree
+- `/worktree-sync` - Sync worktree with master branch
+
+### Worktree + TDD Setup
+
+#### Single Feature, Multiple Instances (TDD Cycle)
+
+**One worktree, three windows:**
+
+```
+📁 Worktree: ../worktrees/feature/user-auth
+   🔴 Window 1: Instance RED (write tests)
+   🟢 Window 2: Instance GREEN (implement)
+   🔵 Window 3: Instance REFACTOR (optimize)
+```
+
+**How to set up:**
+1. Create worktree: `/worktree-create`
+2. Enter branch name: `feature/user-auth`
+3. Copy TDD workspace: `cp -r .claude-workspace <worktree-path>/`
+4. Open 3 Claude Code windows at worktree path
+5. Start TDD cycle with Instance RED
+
+#### Multiple Features in Parallel
+
+**Multiple worktrees, each with TDD cycle:**
+
+```
+📁 Main Repo (master)
+   - Review PRs, handle merges
+
+📁 Worktree 1: feature/authentication
+   🔴 RED: Writing auth tests
+   🟢 GREEN: Implementing auth
+   🔵 REFACTOR: Cleaning auth code
+
+📁 Worktree 2: feature/payments
+   🔴 RED: Writing payment tests
+   🟢 GREEN: Implementing Stripe
+   🔵 REFACTOR: Optimizing payment flow
+
+📁 Worktree 3: feature/notifications
+   🟢 GREEN: Implementing email service
+```
+
+### Benefits of Worktrees + TDD
+
+✅ **True parallel development** - Multiple features at once
+✅ **Zero context switching cost** - Each worktree is isolated
+✅ **TDD discipline enforced** - Separate instances per phase
+✅ **Easy cleanup** - Remove worktree when done
+✅ **Safe experimentation** - Try ideas without affecting main work
+✅ **Efficient disk usage** - Shared .git directory
+
+### Quick Reference: Worktree + TDD Commands
+
+```bash
+# Create worktree with TDD
+/worktree-create
+cp -r .claude-workspace <worktree-path>/
+
+# List all worktrees
+/worktree-list
+
+# Sync with master
+/worktree-sync
+
+# Remove completed worktree
+/worktree-remove
+
+# Open in new window
+code <worktree-path>
+```
+
+---
+
+**Worktrees enable:** True parallel development without conflicts.
+
+**Together they unlock:** Maximum productivity with maximum code quality.
+
+**In parallel, across multiple features, with zero friction.**
