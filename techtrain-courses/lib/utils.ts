@@ -20,7 +20,7 @@ export function formatDate(date: Date, locale: string = 'nl-NL'): string {
       year: 'numeric',
     });
   }
-  return new Intl.DateFormat(locale, {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

@@ -24,7 +24,11 @@
       "Bash(dir:*)",
       "Bash(awk:*)",
       "Bash(git reset:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(test:*)",
+      "Bash(npm run build)",
+      "Bash(cat:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 \"\"\"\"{}\"\"\"\"')"
     ],
     "deny": [],
     "ask": []
