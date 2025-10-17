@@ -1,20 +1,47 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Code, Database, Cloud, Cpu, Container } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Code, Database, Cloud, Cpu, Container, Lock, Webhook } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import CourseCard from '@/components/CourseCard';
-import { getFeaturedCourses } from '@/lib/data';
+import { getFeaturedCourses, categories as allCategories, courses } from '@/lib/data';
+import type { LucideIcon } from 'lucide-react';
 
-const categories = [
-  { name: 'Programming', icon: Code, count: 15 },
-  { name: 'Data', icon: Database, count: 12 },
-  { name: 'Cloud', icon: Cloud, count: 10 },
-  { name: 'AI/ML', icon: Cpu, count: 8 },
-  { name: 'DevOps', icon: Container, count: 9 },
-];
+// Map Dutch categories to icons
+const categoryIconMap: Record<string, LucideIcon> = {
+  'Programmeren & Development': Code,
+  'Data & Data Science': Database,
+  'AI & Machine Learning': Cpu,
+  'Cloud Computing': Cloud,
+  'DevOps & Containers': Container,
+  'Databases': Database,
+  'Beveiliging': Lock,
+  'APIs & Scripting': Webhook,
+};
+
+// Calculate real counts for each category
+const categoriesWithCounts = allCategories.map(category => ({
+  name: category,
+  icon: categoryIconMap[category] || Code,
+  count: courses.filter(course => course.category === category).length,
+}));
 
 export default function Home() {
   const featuredCourses = getFeaturedCourses(4);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/courses');
+    }
+  };
 
   return (
     <div>
@@ -38,23 +65,25 @@ export default function Home() {
           </p>
 
           {/* Search Bar */}
-          <div className="flex gap-2 max-w-2xl">
+          <form onSubmit={handleSearch} className="flex gap-2 max-w-2xl">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
-              <Input
+              <input
                 type="text"
                 placeholder="Zoek cursussen..."
-                className="pl-10 h-12"
+                className="pl-10 h-12 w-full rounded-lg border border-secondary-200 bg-white text-secondary-900 placeholder-secondary-500 focus:ring-2 focus:ring-white/50 focus:border-white transition-all"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button size="lg" className="h-12">
+            <Button type="submit" size="lg" className="h-12" aria-label="Zoeken">
               <Search className="w-5 h-5" />
             </Button>
-          </div>
+          </form>
 
           <Link href="/courses">
             <Button size="lg" className="mt-6">
-              Ontdek Cursussen
+              Bekijk Alle Cursussen
             </Button>
           </Link>
         </div>
@@ -74,11 +103,11 @@ export default function Home() {
       <section className="bg-secondary-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-secondary-900 mb-8">Cursuscategorieën</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-            {categories.map((category) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {categoriesWithCounts.map((category) => (
               <Link
                 key={category.name}
-                href={`/courses?category=${category.name}`}
+                href={`/courses?category=${encodeURIComponent(category.name)}`}
                 className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center"
               >
                 <div className="flex justify-center mb-4">
@@ -86,8 +115,8 @@ export default function Home() {
                     <category.icon className="w-8 h-8 text-primary-600" />
                   </div>
                 </div>
-                <h3 className="font-semibold text-secondary-900 mb-1">{category.name}</h3>
-                <p className="text-sm text-secondary-600">{category.count} cursussen</p>
+                <h3 className="font-semibold text-secondary-900 mb-1 text-sm">{category.name}</h3>
+                <p className="text-sm text-secondary-600">{category.count} {category.count === 1 ? 'cursus' : 'cursussen'}</p>
               </Link>
             ))}
           </div>

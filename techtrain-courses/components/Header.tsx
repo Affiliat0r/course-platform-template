@@ -39,9 +39,6 @@ export default function Header() {
             <Link href="/login" className="text-primary-600 font-medium">
               Inloggen
             </Link>
-            <Button asChild>
-              <Link href="/courses">Nu Inschrijven</Link>
-            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -97,11 +94,6 @@ export default function Header() {
               >
                 Inloggen
               </Link>
-              <Button asChild className="w-full">
-                <Link href="/courses" onClick={() => setMobileMenuOpen(false)}>
-                  Nu Inschrijven
-                </Link>
-              </Button>
             </div>
           </div>
         )}

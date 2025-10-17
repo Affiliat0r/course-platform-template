@@ -28,7 +28,9 @@
       "Bash(test:*)",
       "Bash(npm run build)",
       "Bash(cat:*)",
-      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 \"\"\"\"{}\"\"\"\"')"
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 \"\"\"\"{}\"\"\"\"')",
+      "Read(//c/**)",
+      "Bash(timeout 5 bash:*)"
     ],
     "deny": [],
     "ask": []

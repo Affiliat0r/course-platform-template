@@ -29,9 +29,9 @@ export default function CoursesError({
           <Button onClick={reset} variant="primary">
             Probeer opnieuw
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/">Terug naar home</Link>
-          </Button>
+          <Link href="/">
+            <Button variant="outline">Terug naar home</Button>
+          </Link>
         </div>
       </div>
     </div>

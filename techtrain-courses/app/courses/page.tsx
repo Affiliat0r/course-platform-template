@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import CourseCard from '@/components/CourseCard';
-import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { courses, categories } from '@/lib/data';
 import { TrainingFormat } from '@/types';
@@ -16,10 +16,23 @@ const trainingFormats: { value: TrainingFormat; label: string }[] = [
 ];
 
 export default function CoursesPage() {
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedFormat, setSelectedFormat] = useState<TrainingFormat | ''>('');
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'nl' | ''>('');
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    const urlCategory = searchParams.get('category');
+
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    }
+  }, [searchParams]);
 
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
@@ -59,20 +72,17 @@ export default function CoursesPage() {
           </h1>
 
           {/* Search Bar */}
-          <div className="flex gap-2 max-w-2xl">
-            <div className="flex-1 relative">
+          <div className="max-w-2xl">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
-              <Input
+              <input
                 type="text"
                 placeholder="Zoek cursussen..."
-                className="pl-10 h-12"
+                className="pl-10 h-12 w-full rounded-lg border border-secondary-200 bg-white text-secondary-900 placeholder-secondary-500 focus:ring-2 focus:ring-white/50 focus:border-white transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button size="lg" className="h-12">
-              <Search className="w-5 h-5" />
-            </Button>
           </div>
 
           <Button
@@ -86,7 +96,7 @@ export default function CoursesPage() {
               setSelectedLanguage('');
             }}
           >
-            Ontdek Cursussen
+            Filters Wissen
           </Button>
         </div>
       </section>
@@ -127,22 +137,22 @@ export default function CoursesPage() {
               <div className="space-y-2 mb-6">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    type="checkbox"
+                    type="radio"
+                    name="format"
                     checked={selectedFormat === ''}
                     onChange={() => setSelectedFormat('')}
-                    className="w-4 h-4 text-primary-600 rounded"
+                    className="w-4 h-4 text-primary-600"
                   />
                   <span className="text-sm">Alle Formaten</span>
                 </label>
                 {trainingFormats.map((format) => (
                   <label key={format.value} className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="format"
                       checked={selectedFormat === format.value}
-                      onChange={() =>
-                        setSelectedFormat(selectedFormat === format.value ? '' : format.value)
-                      }
-                      className="w-4 h-4 text-primary-600 rounded"
+                      onChange={() => setSelectedFormat(format.value)}
+                      className="w-4 h-4 text-primary-600"
                     />
                     <span className="text-sm">{format.label}</span>
                   </label>

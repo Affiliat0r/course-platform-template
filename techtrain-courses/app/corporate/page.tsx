@@ -14,12 +14,12 @@ export default function CorporatePage() {
             Versterk je team met op maat gemaakte IT-trainingen. Investeer in de vaardigheden van je medewerkers en blijf voorop in een snel veranderende technologielandschap.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button size="lg" asChild>
-              <Link href="/contact">Offerte Aanvragen</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="bg-white hover:bg-secondary-50" asChild>
-              <Link href="/courses">Bekijk Cursussen</Link>
-            </Button>
+            <Link href="/contact">
+              <Button size="lg">Offerte Aanvragen</Button>
+            </Link>
+            <Link href="/courses">
+              <Button size="lg" variant="outline" className="bg-white hover:bg-secondary-50">Bekijk Cursussen</Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -82,9 +82,9 @@ export default function CorporatePage() {
                   <span className="text-secondary-700">Flexibele planning</span>
                 </li>
               </ul>
-              <Button asChild className="w-full">
-                <Link href="/contact?type=onsite">Meer Informatie</Link>
-              </Button>
+              <Link href="/contact?type=onsite">
+                <Button className="w-full">Meer Informatie</Button>
+              </Link>
             </Card>
 
             <Card className="p-8">
@@ -110,9 +110,9 @@ export default function CorporatePage() {
                   <span className="text-secondary-700">Hands-on labs en oefeningen</span>
                 </li>
               </ul>
-              <Button asChild className="w-full">
-                <Link href="/contact?type=virtual">Meer Informatie</Link>
-              </Button>
+              <Link href="/contact?type=virtual">
+                <Button className="w-full">Meer Informatie</Button>
+              </Link>
             </Card>
           </div>
         </div>
@@ -154,9 +154,9 @@ export default function CorporatePage() {
           ))}
         </div>
         <div className="text-center mt-8">
-          <Button size="lg" asChild>
-            <Link href="/courses">Bekijk Alle Cursussen</Link>
-          </Button>
+          <Link href="/courses">
+            <Button size="lg">Bekijk Alle Cursussen</Button>
+          </Link>
         </div>
       </section>
 
@@ -248,12 +248,12 @@ export default function CorporatePage() {
             Neem contact op voor een vrijblijvende consultatie en ontvang een op maat gemaakt trainingsvoorstel.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="bg-white text-primary-600 hover:bg-secondary-50" asChild>
-              <Link href="/contact">Neem Contact Op</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link href="/courses">Bekijk Cursussen</Link>
-            </Button>
+            <Link href="/contact">
+              <Button size="lg" className="bg-white text-primary-600 hover:bg-secondary-50">Neem Contact Op</Button>
+            </Link>
+            <Link href="/courses">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">Bekijk Cursussen</Button>
+            </Link>
           </div>
         </div>
       </section>

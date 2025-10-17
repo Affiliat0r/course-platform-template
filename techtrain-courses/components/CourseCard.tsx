@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Course } from '@/types';
+import { Course, TrainingFormat } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import Card from './ui/Card';
 import { Star, Globe } from 'lucide-react';
@@ -9,13 +9,20 @@ interface CourseCardProps {
   course: Course;
 }
 
+const formatLabels: Record<TrainingFormat, string> = {
+  virtual: 'Virtueel',
+  classroom: 'Klassikaal',
+  corporate: 'Bedrijf',
+  private: 'Privé',
+};
+
 export default function CourseCard({ course }: CourseCardProps) {
   return (
     <Link href={`/courses/${course.slug}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
         <div className="relative h-48 w-full">
-          <span className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-xs font-medium z-10">
-            {course.format}
+          <span className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-xs font-medium z-10 shadow-sm">
+            {formatLabels[course.format]}
           </span>
           <Image
             src={course.imageUrl}

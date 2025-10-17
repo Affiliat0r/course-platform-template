@@ -33,9 +33,9 @@ export default function Error({
           <Button onClick={reset} variant="primary">
             Probeer opnieuw
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/">Terug naar home</Link>
-          </Button>
+          <Link href="/">
+            <Button variant="outline">Terug naar home</Button>
+          </Link>
         </div>
 
         {process.env.NODE_ENV === 'development' && error.message && (

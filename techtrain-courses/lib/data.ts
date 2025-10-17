@@ -1,5 +1,6 @@
 import { Course } from "@/types";
 import { rawCourseData } from "./course-data-raw";
+import { getCourseDescription as getUniqueDescription } from "./course-descriptions";
 
 // Helper functions
 const createSlug = (name: string): string => {
@@ -69,29 +70,13 @@ const getDeterministicRating = (index: number): number => {
   return 4.5 + (hash / 100);
 };
 
-const getCourseDescription = (name: string, category: string): { description: string, shortDescription: string, objectives: string[], prerequisites: string[], targetAudience: string[] } => {
-  const descriptions: Record<string, any> = {
-    'default': {
-      description: `Professionele training in ${name}. Leer de essentiële vaardigheden en best practices om direct toe te passen in je werk.`,
-      shortDescription: `Master ${name} met praktische hands-on training`,
-      objectives: [
-        'Begrijp de fundamentele concepten',
-        'Implementeer best practices',
-        'Los praktische problemen op',
-        'Bouw productie-klare oplossingen'
-      ],
-      prerequisites: ['Basiskennis IT', 'Ervaring met gerelateerde technologieën aanbevolen'],
-      targetAudience: ['Developers', 'IT Professionals', 'Technical Leads']
-    }
-  };
-
-  return descriptions['default'];
-};
+// This function is now imported from course-descriptions.ts as getUniqueDescription
+// It provides unique, SEO-optimized descriptions for each course instead of generic templates
 
 // Transform raw data to Course objects
 export const courses: Course[] = rawCourseData.map((raw, index) => {
   const slug = createSlug(raw.name);
-  const details = getCourseDescription(raw.name, raw.category);
+  const details = getUniqueDescription(slug, raw.name, raw.category);
 
   return {
     id: String(index + 1),
@@ -109,16 +94,7 @@ export const courses: Course[] = rawCourseData.map((raw, index) => {
     objectives: details.objectives,
     prerequisites: details.prerequisites,
     targetAudience: details.targetAudience,
-    syllabus: [
-      {
-        title: 'Fundamentals',
-        topics: ['Basisconcepten', 'Core features', 'Best practices']
-      },
-      {
-        title: 'Advanced Topics',
-        topics: ['Geavanceerde technieken', 'Real-world toepassingen', 'Optimization']
-      }
-    ],
+    syllabus: details.syllabus,
     instructor: getInstructor(index),
     dates: getCourseDates(index)
   };

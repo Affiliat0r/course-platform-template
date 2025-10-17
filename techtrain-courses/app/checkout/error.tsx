@@ -29,9 +29,9 @@ export default function CheckoutError({
           <Button onClick={reset} variant="primary">
             Probeer opnieuw
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/courses">Terug naar cursussen</Link>
-          </Button>
+          <Link href="/courses">
+            <Button variant="outline">Terug naar cursussen</Button>
+          </Link>
         </div>
       </div>
     </div>

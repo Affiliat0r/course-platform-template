@@ -70,6 +70,12 @@ function CheckoutContent() {
     );
   }
 
+  // Calculate VAT (21% for Netherlands)
+  const VAT_RATE = 0.21;
+  const subtotal = course.price;
+  const vat = subtotal * VAT_RATE;
+  const total = subtotal + vat;
+
   return (
     <div className="min-h-screen bg-secondary-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -244,7 +250,7 @@ function CheckoutContent() {
               <Card className="p-6 sticky top-20">
                 <h2 className="text-xl font-bold mb-4">Besteloverzicht</h2>
 
-                <div className="space-y-4 mb-6">
+                <div className="space-y-3 mb-6">
                   <div>
                     <h3 className="font-semibold text-secondary-900">{course.title}</h3>
                     <p className="text-sm text-secondary-600 mt-1">
@@ -252,15 +258,26 @@ function CheckoutContent() {
                     </p>
                   </div>
 
-                  <div className="flex justify-between text-sm">
-                    <span className="text-secondary-600">Subtotaal (1 plaats)</span>
-                    <span className="font-medium">{formatPrice(course.price)}</span>
+                  <div className="pt-3 border-t space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-secondary-600">Cursusprijs (excl. BTW)</span>
+                      <span className="font-medium">{formatPrice(subtotal)}</span>
+                    </div>
+
+                    <div className="flex justify-between text-sm">
+                      <span className="text-secondary-600">BTW (21%)</span>
+                      <span className="font-medium">{formatPrice(vat)}</span>
+                    </div>
                   </div>
 
-                  <div className="flex justify-between font-bold text-lg pt-4 border-t">
-                    <span>Totaal</span>
-                    <span className="text-primary-600">{formatPrice(course.price)}</span>
+                  <div className="flex justify-between font-bold text-lg pt-3 border-t">
+                    <span>Totaal (incl. BTW)</span>
+                    <span className="text-primary-600">{formatPrice(total)}</span>
                   </div>
+
+                  <p className="text-xs text-secondary-500 italic">
+                    1 deelnemer • Inclusief materialen & certificaat
+                  </p>
                 </div>
 
                 <Input
