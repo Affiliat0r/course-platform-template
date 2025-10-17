@@ -57,7 +57,7 @@ export default function ContactSidebar() {
         </Link>
 
         <Link
-          href="/register"
+          href="/inschrijven"
           className="flex items-center gap-3 p-3 bg-green-600 rounded-md hover:bg-green-700 transition-all group"
         >
           <CheckCircle className="w-5 h-5 text-white" />

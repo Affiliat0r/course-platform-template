@@ -8,6 +8,8 @@ export function formatPrice(price: number, currency: string = 'EUR'): string {
   return new Intl.NumberFormat('nl-NL', {
     style: 'currency',
     currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(price);
 }
 

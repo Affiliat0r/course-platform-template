@@ -4,39 +4,54 @@ import { Phone, FileText, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Course } from '@/types';
 
-interface TrainingFormat {
+interface TrainingFormatAction {
+  iconType: 'phone' | 'file' | 'check';
+  label: string;
+  href: string;
+}
+
+interface TrainingFormatConfig {
   id: string;
   title: string;
-  icon: React.ReactNode;
+  iconType: 'check';
   pricing: string;
   description?: string;
-  actions: {
-    icon: React.ReactNode;
-    label: string;
-    href: string;
-  }[];
+  actions: TrainingFormatAction[];
 }
 
 interface TrainingFormatSelectorProps {
   course: Course;
 }
 
+const getIcon = (iconType: string, className: string) => {
+  switch (iconType) {
+    case 'phone':
+      return <Phone className={className} />;
+    case 'file':
+      return <FileText className={className} />;
+    case 'check':
+      return <CheckCircle className={className} />;
+    default:
+      return null;
+  }
+};
+
 export default function TrainingFormatSelector({ course }: TrainingFormatSelectorProps) {
-  const formats: TrainingFormat[] = [
+  const formats: TrainingFormatConfig[] = [
     {
       id: 'corporate',
       title: 'Bedrijfstraining',
-      icon: <CheckCircle className="w-5 h-5 text-green-600" />,
+      iconType: 'check',
       pricing: 'in overleg',
       description: 'Voor één of meerdere deelnemers, op de door jou gewenste locatie (maatwerk mogelijk)',
       actions: [
         {
-          icon: <Phone className="w-4 h-4" />,
+          iconType: 'phone',
           label: 'Bel mij hierover',
           href: '/contact',
         },
         {
-          icon: <FileText className="w-4 h-4" />,
+          iconType: 'file',
           label: 'Stuur mij een vrijblijvend voorstel',
           href: '/contact',
         },
@@ -45,17 +60,17 @@ export default function TrainingFormatSelector({ course }: TrainingFormatSelecto
     {
       id: 'private',
       title: 'Privétraining',
-      icon: <CheckCircle className="w-5 h-5 text-green-600" />,
+      iconType: 'check',
       pricing: 'in overleg',
       description: undefined,
       actions: [
         {
-          icon: <Phone className="w-4 h-4" />,
+          iconType: 'phone',
           label: 'Bel mij hierover',
           href: '/contact',
         },
         {
-          icon: <FileText className="w-4 h-4" />,
+          iconType: 'file',
           label: 'Stuur mij een vrijblijvend voorstel',
           href: '/contact',
         },
@@ -64,17 +79,17 @@ export default function TrainingFormatSelector({ course }: TrainingFormatSelecto
     {
       id: 'virtual',
       title: 'Virtuele training',
-      icon: <CheckCircle className="w-5 h-5 text-green-600" />,
+      iconType: 'check',
       pricing: 'in overleg',
       description: '(Remote classroom)',
       actions: [
         {
-          icon: <Phone className="w-4 h-4" />,
+          iconType: 'phone',
           label: 'Bel mij hierover',
           href: '/contact',
         },
         {
-          icon: <FileText className="w-4 h-4" />,
+          iconType: 'file',
           label: 'Stuur mij een vrijblijvend voorstel',
           href: '/contact',
         },
@@ -83,19 +98,19 @@ export default function TrainingFormatSelector({ course }: TrainingFormatSelecto
     {
       id: 'classroom',
       title: 'Klassikale training',
-      icon: <CheckCircle className="w-5 h-5 text-green-600" />,
+      iconType: 'check',
       pricing: `${course.duration} / € ${course.price.toLocaleString('nl-NL')}`,
       description: '(excl. btw, prijs per deelnemer)',
       actions: [
         {
-          icon: <Phone className="w-4 h-4" />,
+          iconType: 'phone',
           label: 'Bel mij hierover',
           href: '/contact',
         },
         {
-          icon: <CheckCircle className="w-4 h-4" />,
+          iconType: 'check',
           label: 'Ik wil me inschrijven',
-          href: `/checkout?course=${course.slug}`,
+          href: `/inschrijven?course=${course.slug}`,
         },
       ],
     },
@@ -108,7 +123,7 @@ export default function TrainingFormatSelector({ course }: TrainingFormatSelecto
         {formats.map((format) => (
           <div key={format.id} className="bg-white p-4 rounded-md border border-gray-200">
             <div className="flex items-start gap-3 mb-3">
-              {format.icon}
+              {getIcon(format.iconType, "w-5 h-5 text-green-600")}
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900">{format.title}</h3>
                 {format.description && (
@@ -129,7 +144,7 @@ export default function TrainingFormatSelector({ course }: TrainingFormatSelecto
                   href={action.href}
                   className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                 >
-                  {action.icon}
+                  {getIcon(action.iconType, "w-4 h-4")}
                   <span>{action.label}</span>
                 </Link>
               ))}

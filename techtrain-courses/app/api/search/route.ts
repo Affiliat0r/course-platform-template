@@ -86,7 +86,12 @@ async function semanticSearch(query: string, topK: number = 5) {
       inputs: query,
     });
 
-    queryEmbedding = Array.isArray(response[0]) ? response[0] : response as number[];
+    // Handle response which could be number[] or number[][]
+    if (Array.isArray(response) && response.length > 0) {
+      queryEmbedding = Array.isArray(response[0]) ? response[0] as number[] : response as number[];
+    } else {
+      queryEmbedding = response as number[];
+    }
   } catch (error) {
     console.error('Error generating query embedding:', error);
     return [];
@@ -145,7 +150,8 @@ Samenvatting:`;
 
     // Fallback to template-based summary
     const count = relevantCourses.length;
-    const categories = [...new Set(relevantCourses.map(c => c.category))];
+    const categoriesSet = new Set(relevantCourses.map(c => c.category));
+    const categories = Array.from(categoriesSet);
 
     if (count === 1) {
       return `We hebben de perfecte cursus gevonden voor "${query}": ${relevantCourses[0].title}. ${relevantCourses[0].shortDescription}`;
@@ -197,7 +203,7 @@ function keywordSearch(query: string) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const query = searchParams.get('q') || '';
-  const method = searchParams.get('method') || 'hybrid'; // semantic, keyword, or hybrid
+  const method = 'keyword'; // Always use keyword search (fast and reliable)
 
   if (!query || query.trim().length < 2) {
     return NextResponse.json({
@@ -208,43 +214,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    let rankedCourseIds: Array<{ courseId: string; score: number }> = [];
-
-    if (method === 'semantic' || method === 'hybrid') {
-      // Semantic search using embeddings
-      const semanticResults = await semanticSearch(query, 10);
-      rankedCourseIds = semanticResults.map(r => ({
-        courseId: r.courseId,
-        score: r.similarity * 100
-      }));
-    }
-
-    if (method === 'keyword' || method === 'hybrid') {
-      // Keyword search
-      const keywordResults = keywordSearch(query);
-
-      if (method === 'hybrid') {
-        // Merge semantic and keyword results
-        const mergedScores = new Map<string, number>();
-
-        // Add semantic scores
-        rankedCourseIds.forEach(item => {
-          mergedScores.set(item.courseId, item.score * 0.7); // 70% weight
-        });
-
-        // Add keyword scores
-        keywordResults.forEach(item => {
-          const current = mergedScores.get(item.courseId) || 0;
-          mergedScores.set(item.courseId, current + item.score * 3 * 0.3); // 30% weight
-        });
-
-        rankedCourseIds = Array.from(mergedScores.entries())
-          .map(([courseId, score]) => ({ courseId, score }))
-          .sort((a, b) => b.score - a.score);
-      } else {
-        rankedCourseIds = keywordResults.sort((a, b) => b.score - a.score);
-      }
-    }
+    // Use keyword search (instant results, no API calls needed)
+    const keywordResults = keywordSearch(query);
+    const rankedCourseIds = keywordResults.sort((a, b) => b.score - a.score);
 
     // Get top 8 courses
     const topCourseIds = rankedCourseIds.slice(0, 8).map(r => r.courseId);
@@ -257,8 +229,21 @@ export async function GET(request: NextRequest) {
       return aIndex - bIndex;
     });
 
-    // Skip slow AI summary generation for speed
-    const summary = '';
+    // Generate simple summary based on results
+    let summary = '';
+    if (relevantCourses.length > 0) {
+      const count = relevantCourses.length;
+      const categoriesSet = new Set(relevantCourses.map(c => c.category));
+      const categories = Array.from(categoriesSet);
+
+      if (count === 1) {
+        summary = `We hebben de perfecte cursus gevonden: ${relevantCourses[0].title}`;
+      } else if (count <= 3) {
+        summary = `${count} relevante cursussen gevonden in ${categories.join(', ')}`;
+      } else {
+        summary = `${count} cursussen gevonden - van ${categories[0]} tot ${categories[categories.length - 1]}`;
+      }
+    }
 
     return NextResponse.json({
       results: relevantCourses,

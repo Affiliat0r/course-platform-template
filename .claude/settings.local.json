@@ -30,7 +30,14 @@
       "Bash(cat:*)",
       "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 \"\"\"\"{}\"\"\"\"')",
       "Read(//c/**)",
-      "Bash(timeout 5 bash:*)"
+      "Bash(timeout 5 bash:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(python:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run dev:*)",
+      "Bash($env:PORT=3000)",
+      "Bash(timeout 3 bash -c 'while ! curl -s http://localhost:3000 > /dev/null; do sleep 0.5; done && echo \"\"Server ready!\"\"')"
     ],
     "deny": [],
     "ask": []

@@ -173,7 +173,7 @@ export default function CourseDetailContent({ course }: CourseDetailContentProps
                     </div>
                   </div>
                   <a
-                    href={`/checkout?course=${course.slug}`}
+                    href={`/inschrijven?course=${course.slug}`}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                   >
                     Inschrijven

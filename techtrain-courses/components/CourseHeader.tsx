@@ -70,7 +70,7 @@ export default function CourseHeader({ course }: CourseHeaderProps) {
             Bel mij
           </Link>
           <Link
-            href={`/checkout?course=${course.slug}`}
+            href={`/inschrijven?course=${course.slug}`}
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors"
           >
             Ik wil me inschrijven

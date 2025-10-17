@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, Sparkles, Loader2 } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Course } from '@/types';
 
@@ -64,7 +64,7 @@ export default function SearchBar() {
 
     try {
       const response = await fetch(
-        `/api/search?q=${encodeURIComponent(searchQuery)}&method=hybrid`
+        `/api/search?q=${encodeURIComponent(searchQuery)}`
       );
 
       if (!response.ok) {
@@ -138,22 +138,12 @@ export default function SearchBar() {
             </div>
           ) : results && (
             <>
-              {/* AI Summary Header */}
+              {/* Search Summary Header */}
               {results.summary && (
-                <div className="p-6 bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Sparkles className="w-5 h-5 text-primary-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-1">
-                        AI-gestuurde Zoekresultaten
-                      </div>
-                      <p className="text-sm text-secondary-700 leading-relaxed">
-                        {results.summary}
-                      </p>
-                    </div>
-                  </div>
+                <div className="p-4 bg-primary-50 border-b border-primary-200">
+                  <p className="text-sm text-secondary-700 leading-relaxed">
+                    {results.summary}
+                  </p>
                 </div>
               )}
 
@@ -207,7 +197,7 @@ export default function SearchBar() {
                               {course.category}
                             </span>
                             <span>{course.duration}</span>
-                            <span>⭐ {course.rating.toFixed(1)}</span>
+                            {course.rating && <span>⭐ {course.rating.toFixed(1)}</span>}
                           </div>
                         </div>
                       </div>
