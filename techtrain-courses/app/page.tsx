@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Search, Code, Database, Cloud, Cpu, Container, Lock, Webhook } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -127,44 +128,44 @@ export default function Home() {
             <div className="flex animate-slide">
               {/* First set of logos */}
               <div className="flex items-center justify-around min-w-full shrink-0 gap-12 px-6">
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  ING
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/ing.svg" alt="ING" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  KPN
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/kpn.svg" alt="KPN" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Philips
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/philips.svg" alt="Philips" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  ASML
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/asml.svg" alt="ASML" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Exact
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/exact.svg" alt="Exact" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Coolblue
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/coolblue.svg" alt="Coolblue" width={100} height={48} className="object-contain" />
                 </div>
               </div>
               {/* Duplicate set for seamless loop */}
               <div className="flex items-center justify-around min-w-full shrink-0 gap-12 px-6">
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  ING
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/ing.svg" alt="ING" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  KPN
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/kpn.svg" alt="KPN" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Philips
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/philips.svg" alt="Philips" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  ASML
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/asml.svg" alt="ASML" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Exact
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/exact.svg" alt="Exact" width={100} height={48} className="object-contain" />
                 </div>
-                <div className="flex items-center justify-center h-12 text-2xl font-bold text-secondary-400 min-w-[120px]">
-                  Coolblue
+                <div className="flex items-center justify-center h-12 min-w-[120px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                  <Image src="/logos/coolblue.svg" alt="Coolblue" width={100} height={48} className="object-contain" />
                 </div>
               </div>
             </div>

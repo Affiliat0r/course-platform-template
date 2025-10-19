@@ -6,14 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **Course Platform Template** - a production-ready Next.js template for building Dutch IT course e-commerce platforms. The repository contains both:
 1. **Root project** - Template infrastructure with TDD workflows, Claude agents, and GitHub automation
-2. **techtrain-courses/** - An active Next.js 14 course platform implementation (MVP stage)
+2. **techtrain-courses/** - An active Next.js 14 course platform implementation (MVP+ stage)
+
+## Quick Start
+
+```bash
+# Navigate to the application directory (REQUIRED for all commands)
+cd techtrain-courses
+
+# Install dependencies
+npm install
+
+# Start development server (http://localhost:3000)
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linter
+npm run lint
+```
+
+**IMPORTANT**: Always run commands from `techtrain-courses/` directory, not from the root.
 
 ## Key Architecture Decisions
 
 ### Monorepo Structure
 - Root level contains documentation, Claude automation, and GitHub workflows
 - `techtrain-courses/` is the actual Next.js application
-- All development commands must be run from within `techtrain-courses/` directory
+- **CRITICAL**: All development commands (npm, build, test, etc.) must be run from within `techtrain-courses/` directory
+- Always `cd techtrain-courses` before running npm commands
+- Root `package.json` does not exist - only `techtrain-courses/package.json`
 
 ### Language & Localization
 **IMPORTANT**: The site is Dutch-only. All user-facing content, UI labels, and course information must be in Dutch.
@@ -21,9 +47,13 @@ This is a **Course Platform Template** - a production-ready Next.js template for
 ### Tech Stack
 - **Framework**: Next.js 14 with App Router (not Pages Router)
 - **Language**: TypeScript with strict mode enabled
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS with custom configuration
 - **Forms**: React Hook Form + Zod validation
-- **Data**: Mock data in `lib/data.ts` (no database yet)
+- **Icons**: Lucide React for consistent iconography
+- **Date Handling**: date-fns for date formatting and manipulation
+- **AI/ML**: Hugging Face Inference API, Xenova Transformers (for AI features)
+- **AI SDK**: Vercel AI SDK for AI integration
+- **Data**: Mock/generated data in `lib/` directory (no database yet)
 
 ## Development Commands
 
@@ -56,29 +86,49 @@ techtrain-courses/ # The actual Next.js application
 ### Application Structure (techtrain-courses/)
 ```
 app/
-  [locale]/        # Locale-specific routes (Dutch only)
-  about/           # About page
-  admin/           # Admin dashboard
-  checkout/        # Checkout flow
-  contact/         # Contact form
-  courses/         # Course catalog and detail pages
-    [slug]/        # Dynamic course pages
-  login/           # Authentication UI (demo mode)
-  layout.tsx       # Root layout with Header/Footer
-  page.tsx         # Homepage
+  about/              # About page
+  admin/              # Admin dashboard
+  api/                # API routes (Next.js API handlers)
+  checkout/           # Checkout flow
+  contact/            # Contact form
+  corporate/          # Corporate training page
+  courses/            # Course catalog and detail pages
+    [slug]/           # Dynamic course pages
+  faq/                # FAQ page
+  forgot-password/    # Password reset page
+  inschrijven/        # Enrollment/registration flow
+  login/              # Authentication UI (demo mode)
+  privacy/            # Privacy policy page
+  register/           # User registration page
+  terms/              # Terms & conditions page
+  error.tsx           # Error boundary component
+  globals.css         # Global styles and CSS variables
+  layout.tsx          # Root layout with Header/Footer
+  not-found.tsx       # 404 page
+  page.tsx            # Homepage (Dutch language)
 
 components/
-  ui/              # Reusable UI primitives (Button, Input, Card)
-  CourseCard.tsx   # Course display component
-  Header.tsx       # Navigation with language switcher
-  Footer.tsx       # Site footer
+  ui/                      # Reusable UI primitives (Button, Input, Card)
+  ContactSidebar.tsx       # Contact information sidebar
+  CourseBookingForm.tsx    # Course booking form component
+  CourseCard.tsx           # Course card display
+  CourseDetailContent.tsx  # Course detail page content
+  CourseHeader.tsx         # Course page header
+  CourseTabNavigation.tsx  # Tab navigation for course pages
+  Footer.tsx               # Site footer
+  Header.tsx               # Navigation header
+  SearchBar.tsx            # Course search functionality
+  TrainingFormatSelector.tsx # Training format selection
 
 lib/
-  data.ts          # Mock course data (6 IT courses)
-  utils.ts         # Utility functions (cn for classNames)
+  course-data-raw.ts       # Raw course data structure
+  course-descriptions.ts   # Detailed course descriptions (AI-generated)
+  courses-generated.ts     # Generated course catalog
+  data.ts                  # Main course data export
+  utils.ts                 # Utility functions (cn, formatters)
 
 types/
-  index.ts         # TypeScript type definitions
+  index.ts                 # Core TypeScript type definitions
 ```
 
 ## Important Patterns
@@ -99,16 +149,33 @@ Components follow this pattern:
 - Client Components marked with `'use client'`
 
 ### Data Flow
-Currently using mock data from `lib/data.ts`. Structure:
-- 6 IT courses with full details
-- Categories: Frontend, Backend, DevOps, etc.
-- Each course has schedules, instructor info, and curriculum
+Currently using mock/generated data from `lib/` directory:
+- `data.ts` - Main export point for course data
+- `courses-generated.ts` - Generated course catalog
+- `course-descriptions.ts` - AI-generated detailed course descriptions (large file ~177KB)
+- `course-data-raw.ts` - Raw course data structure
+- Multiple IT courses across categories (Frontend, Backend, DevOps, Cloud, AI/ML, etc.)
+- Each course includes: slug, title, description, price, schedules, instructor info, and curriculum
 
 ### Styling Conventions
 - Tailwind utility classes for styling
 - Use `cn()` utility from `lib/utils.ts` for conditional classes
 - Responsive breakpoints: mobile-first approach
 - Color scheme: Blue primary (#2563EB), gray secondary
+- Custom CSS variables defined in `globals.css`
+
+### Error Handling
+- Custom error boundary in `app/error.tsx`
+- Custom 404 page in `app/not-found.tsx`
+- Client-side form validation with React Hook Form + Zod
+- Server-side validation in API routes (when implemented)
+
+### Performance Considerations
+- Server Components by default for better performance
+- Client Components only when necessary (interactivity, hooks)
+- Next.js Image component for optimized image loading
+- Code splitting via dynamic imports (where applicable)
+- Large course descriptions file (~177KB) - consider lazy loading for production
 
 ## Test-Driven Development (TDD)
 
@@ -127,19 +194,27 @@ This project enforces TDD practices:
 
 ### Claude Agents for TDD
 Use specialized agents in `.claude/agents/`:
-- `test-first-guide.md` - Enforces TDD workflow
-- `course-architect.md` - Plans course platform features
-- `payment-flow-expert.md` - Stripe integration guidance
-- `accessibility-checker.md` - WCAG compliance
-- `seo-optimizer.md` - SEO best practices
+- `test-first-guide.md` - Enforces TDD workflow and Red-Green-Refactor cycle
+- `course-architect.md` - Plans course platform features and architecture
+- `payment-flow-expert.md` - Stripe integration and payment flow guidance
+- `accessibility-checker.md` - WCAG compliance and a11y best practices
+- `seo-optimizer.md` - SEO optimization and search visibility
+- `homepage-designer.md` - Homepage design and UX patterns
+- `ux-analyzer.md` - User experience analysis and recommendations
+- `ux-implementation-guide.md` - UX implementation and best practices
+- `competitive-research.md` - Competitive analysis and market research
+- `attack-plan-architect.md` - Feature planning and implementation strategy
+- `git-protocol-commander.md` - Git workflow and branching strategy
 
 ## GitHub Workflow Commands
 
 Use slash commands for streamlined git workflows:
-- `/gh-feature-branch` - Create new feature branch
-- `/gh-push` - Push changes to GitHub
+- `/gh-feature-branch` - Create new feature branch following naming conventions
+- `/gh-push` - Stage, commit, and push changes to GitHub
 - `/gh-create-pr` - Create PR, auto-merge to master, sync back to feature branch
-- `/tdd-cycle` - Guide through Red-Green-Refactor cycle
+- `/gh-create-repo` - Initialize new GitHub repository
+- `/gh-clone-repo` - Clone existing GitHub repository
+- `/tdd-cycle` - Guide through complete Red-Green-Refactor cycle
 
 ### Git Protocol
 - Main branch: `master` (not main)
@@ -149,14 +224,16 @@ Use slash commands for streamlined git workflows:
 
 ## Current Implementation Status
 
-### Completed (MVP)
-- Homepage with hero, featured courses, categories
-- Course catalog with filtering (category, format, language)
-- Individual course detail pages
-- Checkout flow (UI only, no payment processing)
-- Admin dashboard (mock data)
-- Responsive design (mobile-first)
-- All pages in Dutch
+### Completed (MVP+)
+- **Core Pages**: Homepage, course catalog, course detail pages, checkout flow
+- **Marketing Pages**: About, Contact, Corporate training, FAQ, Privacy, Terms
+- **User Flow**: Login, Register, Forgot Password, Enrollment (Inschrijven)
+- **Admin Dashboard**: Overview with mock data
+- **Filtering & Search**: Course catalog filtering (category, format, language) with search bar
+- **Booking System**: Course booking forms and training format selector
+- **API Routes**: API directory with Next.js route handlers
+- **Responsive Design**: Mobile-first approach across all pages
+- **Dutch Language**: All content in Dutch as required
 
 ### Not Yet Implemented
 - Database integration (currently mock data only)
@@ -196,10 +273,17 @@ Use slash commands for streamlined git workflows:
 ## Common Tasks
 
 ### Adding a New Course
-1. Edit `techtrain-courses/lib/data.ts`
-2. Add new course object to `mockCourses` array
-3. Include all required fields: slug, title, description, price, etc.
-4. Add Dutch translations for all content
+1. Add course data to `techtrain-courses/lib/courses-generated.ts` or `course-data-raw.ts`
+2. If needed, add AI-generated descriptions to `course-descriptions.ts`
+3. Ensure the course is exported from `data.ts`
+4. Include all required fields: slug, title, description, price, schedules, etc.
+5. All content must be in Dutch
+
+### Working with Course Data
+- **Primary export**: Import from `lib/data.ts`
+- **Generated courses**: Located in `courses-generated.ts`
+- **Descriptions**: Large AI-generated content in `course-descriptions.ts` (~177KB)
+- **Raw data**: Base structure in `course-data-raw.ts`
 
 ### Adding a New Page
 1. Create directory in `app/`
@@ -274,8 +358,16 @@ Use semantic commit messages:
 
 ## Resources
 
-- Main README: `README.md` (template overview)
-- TDD Workflow: `docs/TDD_WORKFLOW.md` (comprehensive TDD guide)
-- Usage Guide: `docs/USAGE.md` (detailed usage instructions)
-- Deployment: `docs/DEPLOYMENT.md` (deployment strategies)
-- TechTrain README: `techtrain-courses/README.md` (implementation status)
+### Documentation
+- **TDD Workflow**: [`docs/TDD_WORKFLOW.md`](docs/TDD_WORKFLOW.md) - Comprehensive TDD guide with examples
+- **Usage Guide**: [`docs/USAGE.md`](docs/USAGE.md) - Detailed usage instructions and workflows
+- **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) - Deployment strategies and configurations
+- **TechTrain README**: [`techtrain-courses/README.md`](techtrain-courses/README.md) - Implementation status and tech stack
+- **Codebase Review**: [`techtrain-courses/CODEBASE_REVIEW.md`](techtrain-courses/CODEBASE_REVIEW.md) - Detailed codebase analysis
+- **Site Health Check**: [`techtrain-courses/SITE_HEALTH_CHECK.md`](techtrain-courses/SITE_HEALTH_CHECK.md) - Site health and performance metrics
+
+### Configuration Files
+- **TypeScript**: [`techtrain-courses/tsconfig.json`](techtrain-courses/tsconfig.json) - Strict mode enabled, path aliases configured
+- **Tailwind**: [`techtrain-courses/tailwind.config.ts`](techtrain-courses/tailwind.config.ts) - Custom design system configuration
+- **Next.js**: [`techtrain-courses/next.config.js`](techtrain-courses/next.config.js) - Next.js configuration
+- **Claude Settings**: [`.claude/settings.local.json`](.claude/settings.local.json) - Claude Code settings

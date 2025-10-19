@@ -70,6 +70,36 @@ const getDeterministicRating = (index: number): number => {
   return 4.5 + (hash / 100);
 };
 
+// Generate student count based on course index
+const getStudentCount = (index: number): number => {
+  const base = [523, 412, 687, 234, 891, 345, 567, 723, 456, 912];
+  return base[index % base.length];
+};
+
+// Generate review count based on student count
+const getReviewCount = (studentCount: number): number => {
+  return Math.floor(studentCount * 0.15); // 15% of students leave reviews
+};
+
+// Determine course level
+const getCourseLevel = (index: number): 'beginner' | 'intermediate' | 'advanced' => {
+  const levels: ('beginner' | 'intermediate' | 'advanced')[] = ['intermediate', 'beginner', 'advanced'];
+  return levels[index % 3];
+};
+
+// Determine if course has special attributes
+const getSpecialAttributes = (index: number) => {
+  return {
+    hasCertificate: index % 4 !== 3, // 75% have certificates
+    hasDiscount: index % 7 === 0, // ~14% have discounts
+    discountPercentage: index % 7 === 0 ? 15 : undefined,
+    isBestseller: index % 5 === 0, // 20% are bestsellers
+    isNew: index % 11 === 0, // ~9% are new
+    spotsLeft: index % 6 === 0 ? 3 : undefined, // Some have limited spots
+    lastUpdated: index % 11 === 0 ? new Date() : undefined,
+  };
+};
+
 // This function is now imported from course-descriptions.ts as getUniqueDescription
 // It provides unique, SEO-optimized descriptions for each course instead of generic templates
 
@@ -77,6 +107,8 @@ const getDeterministicRating = (index: number): number => {
 export const courses: Course[] = rawCourseData.map((raw, index) => {
   const slug = createSlug(raw.name);
   const details = getUniqueDescription(slug, raw.name, raw.category);
+  const studentCount = getStudentCount(index);
+  const specialAttrs = getSpecialAttributes(index);
 
   return {
     id: String(index + 1),
@@ -89,14 +121,18 @@ export const courses: Course[] = rawCourseData.map((raw, index) => {
     language: 'nl',
     format: index % 3 === 0 ? 'virtual' : 'classroom',
     category: raw.category,
-    rating: getDeterministicRating(index), // Deterministic rating between 4.5 and 4.9
+    level: getCourseLevel(index),
+    rating: getDeterministicRating(index),
+    reviewCount: getReviewCount(studentCount),
+    studentCount: studentCount,
     imageUrl: getImageForCategory(raw.category),
     objectives: details.objectives,
     prerequisites: details.prerequisites,
     targetAudience: details.targetAudience,
     syllabus: details.syllabus,
     instructor: getInstructor(index),
-    dates: getCourseDates(index)
+    dates: getCourseDates(index),
+    ...specialAttrs,
   };
 });
 
