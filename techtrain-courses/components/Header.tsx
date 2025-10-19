@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
-import { Menu, X, ChevronUp } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Button from './ui/Button';
 
 export default function Header() {
@@ -13,12 +14,15 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex flex-col items-center">
-              <ChevronUp className="w-6 h-6 text-primary-600" />
-              <ChevronUp className="w-6 h-6 text-primary-600 -mt-3" />
-            </div>
-            <span className="text-xl font-bold text-secondary-900">TECHTRAIN</span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/branding/logo.svg"
+              alt="TechTrain"
+              width={240}
+              height={69}
+              className="h-15 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

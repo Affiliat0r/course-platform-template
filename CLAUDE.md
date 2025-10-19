@@ -32,6 +32,18 @@ npm run lint
 
 **IMPORTANT**: Always run commands from `techtrain-courses/` directory, not from the root.
 
+## Current Development Branch
+
+Branch: `feature/course-platform-setup`
+
+Recent work includes:
+- Homepage redesign with modern UX and conversion optimization
+- Advanced filtering system (FilterPanel, FilterDrawer, SortBar)
+- Search optimization for instant results
+- Wishlist functionality (useWishlist hook)
+- UI components (Badge)
+- Dutch-only language enforcement
+
 ## Key Architecture Decisions
 
 ### Monorepo Structure
@@ -108,17 +120,23 @@ app/
   page.tsx            # Homepage (Dutch language)
 
 components/
-  ui/                      # Reusable UI primitives (Button, Input, Card)
+  ui/                      # Reusable UI primitives (Button, Input, Card, Badge)
   ContactSidebar.tsx       # Contact information sidebar
   CourseBookingForm.tsx    # Course booking form component
   CourseCard.tsx           # Course card display
   CourseDetailContent.tsx  # Course detail page content
   CourseHeader.tsx         # Course page header
   CourseTabNavigation.tsx  # Tab navigation for course pages
+  FilterDrawer.tsx         # Mobile filter drawer (bottom sheet)
+  FilterPanel.tsx          # Desktop filter panel (sidebar)
   Footer.tsx               # Site footer
   Header.tsx               # Navigation header
   SearchBar.tsx            # Course search functionality
+  SortBar.tsx              # Sort controls for course catalog
   TrainingFormatSelector.tsx # Training format selection
+
+hooks/
+  useWishlist.ts           # Wishlist state management hook
 
 lib/
   course-data-raw.ts       # Raw course data structure
@@ -132,6 +150,12 @@ types/
 ```
 
 ## Important Patterns
+
+### Custom Hooks
+The application uses React custom hooks for reusable logic:
+- **useWishlist.ts**: Manages wishlist state (add, remove, check if item in wishlist)
+- Located in `hooks/` directory
+- Follow this pattern for other shared state logic
 
 ### Path Aliases
 Use `@/*` to import from root of techtrain-courses:
@@ -177,6 +201,15 @@ Currently using mock/generated data from `lib/` directory:
 - Code splitting via dynamic imports (where applicable)
 - Large course descriptions file (~177KB) - consider lazy loading for production
 
+### Filtering and Search Architecture
+The course catalog implements a sophisticated filtering system:
+- **Desktop**: FilterPanel (sidebar) with category, format, language, and price filters
+- **Mobile**: FilterDrawer (bottom sheet) with same filtering capabilities
+- **Search**: SearchBar component provides instant search results
+- **Sorting**: SortBar allows sorting by price, date, popularity
+- **State Management**: Client-side filtering with URL query params (future enhancement)
+- All filters work together and update results in real-time
+
 ## Test-Driven Development (TDD)
 
 This project enforces TDD practices:
@@ -196,6 +229,7 @@ This project enforces TDD practices:
 Use specialized agents in `.claude/agents/`:
 - `test-first-guide.md` - Enforces TDD workflow and Red-Green-Refactor cycle
 - `course-architect.md` - Plans course platform features and architecture
+- `courses-ui-designer.md` - Course UI/UX design patterns and implementations
 - `payment-flow-expert.md` - Stripe integration and payment flow guidance
 - `accessibility-checker.md` - WCAG compliance and a11y best practices
 - `seo-optimizer.md` - SEO optimization and search visibility
@@ -229,20 +263,26 @@ Use slash commands for streamlined git workflows:
 - **Marketing Pages**: About, Contact, Corporate training, FAQ, Privacy, Terms
 - **User Flow**: Login, Register, Forgot Password, Enrollment (Inschrijven)
 - **Admin Dashboard**: Overview with mock data
-- **Filtering & Search**: Course catalog filtering (category, format, language) with search bar
+- **Filtering & Search**:
+  - Course catalog filtering (category, format, language)
+  - Search bar with instant results
+  - Desktop filter panel and mobile filter drawer
+  - Sort controls (price, date, popularity)
 - **Booking System**: Course booking forms and training format selector
+- **Wishlist**: Custom hook for wishlist functionality
 - **API Routes**: API directory with Next.js route handlers
 - **Responsive Design**: Mobile-first approach across all pages
 - **Dutch Language**: All content in Dutch as required
 
 ### Not Yet Implemented
-- Database integration (currently mock data only)
-- Authentication (UI exists, no backend)
-- Payment processing (checkout UI only)
-- Testing infrastructure (documented but not implemented)
-- Email notifications
-- User reviews/ratings
-- Certificate generation
+- **Database integration** (currently mock data only)
+- **Authentication** (UI exists, no backend)
+- **Payment processing** (checkout UI only)
+- **Testing infrastructure** (documented but not implemented - no test runner configured)
+- **Email notifications**
+- **User reviews/ratings**
+- **Certificate generation**
+- **Wishlist persistence** (hook exists but no backend storage)
 
 ## Adding New Features
 
@@ -290,6 +330,15 @@ Use slash commands for streamlined git workflows:
 2. Add `page.tsx` with Server Component
 3. Follow existing patterns for layout and styling
 4. Ensure mobile responsiveness
+5. All content must be in Dutch
+
+### Adding a New Component
+1. For UI primitives, add to `components/ui/`
+2. For feature components, add to `components/`
+3. Use `'use client'` directive only if the component needs interactivity
+4. Import using `@/components/...` path alias
+5. Follow naming convention: PascalCase for components
+6. Export as default or named export from the file
 
 ### Updating Styles
 - Modify Tailwind classes directly in components

@@ -249,7 +249,7 @@ export default function CorporatePage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/contact">
-              <Button size="lg" className="bg-white text-primary-600 hover:bg-secondary-50">Neem Contact Op</Button>
+              <Button size="lg" variant="secondary" className="!bg-white !text-primary-600 hover:!bg-secondary-50">Neem Contact Op</Button>
             </Link>
             <Link href="/courses">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">Bekijk Cursussen</Button>

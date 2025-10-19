@@ -36,27 +36,27 @@ const getCourseDates = (offset: number = 0): Date[] => {
 
 const getImageForCategory = (category: string): string => {
   const imageMap: Record<string, string> = {
-    'Programmeren & Development': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800',
-    'Data & Data Science': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
-    'AI & Machine Learning': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
-    'Cloud Computing': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
-    'DevOps & Containers': 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800',
-    'Databases': 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800',
-    'Beveiliging': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800',
-    'APIs & Scripting': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800',
+    'Programmeren & Development': '/images/courses/programming.jpg',
+    'Data & Data Science': '/images/courses/data-science.jpg',
+    'AI & Machine Learning': '/images/courses/ai-ml.jpg',
+    'Cloud Computing': '/images/courses/cloud.jpg',
+    'DevOps & Containers': '/images/courses/devops.jpg',
+    'Databases': '/images/courses/databases.jpg',
+    'Beveiliging': '/images/courses/security.jpg',
+    'APIs & Scripting': '/images/courses/apis.jpg',
   };
-  return imageMap[category] || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800';
+  return imageMap[category] || '/images/courses/programming.jpg';
 };
 
 const instructorPool = [
-  { name: 'Jan de Vries', bio: 'Senior IT trainer met 15+ jaar ervaring in softwareontwikkeling en opleidingen.', imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200' },
-  { name: 'Lisa Bakker', bio: 'Gecertificeerd expert met internationale ervaring in enterprise technologieën.', imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200' },
-  { name: 'Mohammed El Amrani', bio: 'Cloud architect en DevOps specialist met track record bij Fortune 500 bedrijven.', imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200' },
-  { name: 'Sophie Chen', bio: 'Data scientist en AI researcher met publicaties in top conferenties.', imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200' },
-  { name: 'Mark van der Berg', bio: 'Database expert en performance specialist met 12 jaar ervaring.', imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200' },
-  { name: 'Emma de Jong', bio: 'Security professional en compliance expert, gecertificeerd in meerdere frameworks.', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200' },
-  { name: 'Pieter Janssen', bio: 'Full-stack developer en technical lead met passie voor onderwijs.', imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200' },
-  { name: 'Anna Vermeer', bio: 'Machine learning engineer met focus op productionisering van AI modellen.', imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200' },
+  { name: 'Jan de Vries', bio: 'Senior IT trainer met 15+ jaar ervaring in softwareontwikkeling en opleidingen.', imageUrl: '/images/instructors/jan-de-vries.jpg' },
+  { name: 'Lisa Bakker', bio: 'Gecertificeerd expert met internationale ervaring in enterprise technologieën.', imageUrl: '/images/instructors/lisa-bakker.jpg' },
+  { name: 'Mohammed El Amrani', bio: 'Cloud architect en DevOps specialist met track record bij Fortune 500 bedrijven.', imageUrl: '/images/instructors/mohammed-el-amrani.jpg' },
+  { name: 'Sophie Chen', bio: 'Data scientist en AI researcher met publicaties in top conferenties.', imageUrl: '/images/instructors/sophie-chen.jpg' },
+  { name: 'Mark van der Berg', bio: 'Database expert en performance specialist met 12 jaar ervaring.', imageUrl: '/images/instructors/mark-van-der-berg.jpg' },
+  { name: 'Emma de Jong', bio: 'Security professional en compliance expert, gecertificeerd in meerdere frameworks.', imageUrl: '/images/instructors/emma-de-jong.jpg' },
+  { name: 'Pieter Janssen', bio: 'Full-stack developer en technical lead met passie voor onderwijs.', imageUrl: '/images/instructors/pieter-janssen.jpg' },
+  { name: 'Anna Vermeer', bio: 'Machine learning engineer met focus op productionisering van AI modellen.', imageUrl: '/images/instructors/anna-vermeer.jpg' },
 ];
 
 const getInstructor = (index: number) => {
