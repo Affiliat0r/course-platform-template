@@ -39,7 +39,8 @@
       "Bash($env:PORT=3000)",
       "Bash(timeout 3 bash -c 'while ! curl -s http://localhost:3000 > /dev/null; do sleep 0.5; done && echo \"\"Server ready!\"\"')",
       "Bash(tree:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx tsx scripts/migrate-to-supabase.ts)"
     ],
     "deny": [],
     "ask": []
