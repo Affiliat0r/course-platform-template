@@ -1,0 +1,84 @@
+name: CI - TechTrain Course Platform
+
+on:
+  push:
+    branches: [master, feature/**]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-and-build:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: techtrain-courses/package-lock.json
+
+      - name: Install dependencies
+        working-directory: techtrain-courses
+        run: npm ci
+
+      - name: Run linter
+        working-directory: techtrain-courses
+        run: npm run lint
+
+      - name: Check TypeScript
+        working-directory: techtrain-courses
+        run: npx tsc --noEmit
+
+      - name: Build application
+        working-directory: techtrain-courses
+        run: npm run build
+        env:
+          # Provide dummy values for build-time environment variables
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder_anon_key
+          NEXT_PUBLIC_APP_URL: https://techtrain.nl
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+
+      - name: Upload build artifacts
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: techtrain-courses/.next
+          retention-days: 7
+
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: techtrain-courses/package-lock.json
+
+      - name: Install dependencies
+        working-directory: techtrain-courses
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: techtrain-courses
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for exposed secrets
+        run: |
+          echo "Checking for common secret patterns..."
+          ! grep -r "sk_live_" techtrain-courses/ --exclude-dir=node_modules --exclude-dir=.next || exit 1
+          ! grep -r "SUPABASE_SERVICE_ROLE_KEY.*eyJ" techtrain-courses/ --exclude-dir=node_modules --exclude-dir=.next || exit 1
+          echo "No exposed secrets found ✓"
