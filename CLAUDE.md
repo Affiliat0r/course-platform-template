@@ -65,7 +65,9 @@ Recent work includes:
 - **Date Handling**: date-fns for date formatting and manipulation
 - **AI/ML**: Hugging Face Inference API, Xenova Transformers (for AI features)
 - **AI SDK**: Vercel AI SDK for AI integration
-- **Data**: Mock/generated data in `lib/` directory (no database yet)
+- **Database**: Supabase (PostgreSQL) - Fully integrated with authentication and data storage
+- **Authentication**: Supabase Auth with Row Level Security (RLS)
+- **Data**: Migrated from mock data to Supabase (79 courses, 237 schedules)
 
 ## Development Commands
 
@@ -77,6 +79,14 @@ npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
 ```
+
+### Database & Migration
+```bash
+cd techtrain-courses
+npx tsx scripts/migrate-to-supabase.ts  # Migrate course data to Supabase
+```
+
+**IMPORTANT**: Ensure `.env.local` is configured with Supabase credentials before running migrations. See `.env.local.example` for required variables.
 
 ### Testing (Not Yet Implemented)
 The template includes TDD infrastructure documentation, but tests are not yet implemented in techtrain-courses. When adding tests:
@@ -99,6 +109,9 @@ techtrain-courses/ # The actual Next.js application
 ```
 app/
   about/              # About page
+  actions/            # Server Actions for Supabase
+    auth.ts           # Authentication actions (signup, login, logout, password reset)
+    enrollments.ts    # Enrollment management actions
   admin/              # Admin dashboard
   api/                # API routes (Next.js API handlers)
   checkout/           # Checkout flow
@@ -109,7 +122,7 @@ app/
   faq/                # FAQ page
   forgot-password/    # Password reset page
   inschrijven/        # Enrollment/registration flow
-  login/              # Authentication UI (demo mode)
+  login/              # Authentication UI (Supabase Auth ready)
   privacy/            # Privacy policy page
   register/           # User registration page
   terms/              # Terms & conditions page
@@ -139,17 +152,70 @@ hooks/
   useWishlist.ts           # Wishlist state management hook
 
 lib/
-  course-data-raw.ts       # Raw course data structure
+  supabase/                # Supabase client utilities
+    client.ts              # Browser client for client components
+    server.ts              # Server client for server components
+    middleware.ts          # Auth middleware utilities
+  course-data-raw.ts       # Raw course data structure (legacy)
   course-descriptions.ts   # Detailed course descriptions (AI-generated)
-  courses-generated.ts     # Generated course catalog
-  data.ts                  # Main course data export
+  courses-generated.ts     # Generated course catalog (legacy)
+  data.ts                  # Main course data export (legacy - now in Supabase)
   utils.ts                 # Utility functions (cn, formatters)
 
+scripts/
+  migrate-to-supabase.ts   # Migration script for moving data to Supabase
+
+supabase/
+  schema.sql               # Database schema with RLS policies
+
 types/
+  database.types.ts        # Supabase database TypeScript types
   index.ts                 # Core TypeScript type definitions
+
+middleware.ts              # Root middleware for session management
 ```
 
 ## Important Patterns
+
+### Supabase Integration
+The application uses Supabase for database and authentication:
+
+#### Client Types
+- **Browser Client** (`lib/supabase/client.ts`): Use in Client Components with `'use client'` directive
+- **Server Client** (`lib/supabase/server.ts`): Use in Server Components, Server Actions, and API routes
+- **Middleware** (`lib/supabase/middleware.ts`): Session management utilities
+
+#### Server Actions
+Server Actions provide type-safe database operations:
+- **Authentication** (`app/actions/auth.ts`): `signUp`, `signIn`, `signOut`, `resetPassword`
+- **Enrollments** (`app/actions/enrollments.ts`): `createEnrollment`, `getUserEnrollments`
+- Call from Client Components using `useTransition` or `useFormStatus`
+
+#### Database Access Pattern
+```typescript
+// Server Component
+import { createClient } from '@/lib/supabase/server'
+
+const supabase = createClient()
+const { data: courses } = await supabase
+  .from('courses')
+  .select('*')
+  .eq('published', true)
+
+// Client Component
+'use client'
+import { createClient } from '@/lib/supabase/client'
+
+const supabase = createClient()
+// Use for real-time subscriptions or client-side queries
+```
+
+#### Row Level Security (RLS)
+All Supabase tables have RLS policies enabled:
+- Users can only view/edit their own data
+- Public can view published courses
+- Enrolled users can create reviews
+- See `supabase/schema.sql` for policy definitions
 
 ### Custom Hooks
 The application uses React custom hooks for reusable logic:
@@ -161,8 +227,9 @@ The application uses React custom hooks for reusable logic:
 Use `@/*` to import from root of techtrain-courses:
 ```typescript
 import { Button } from '@/components/ui/Button'
-import { mockCourses } from '@/lib/data'
+import { createClient } from '@/lib/supabase/server'
 import type { Course } from '@/types'
+import type { Database } from '@/types/database.types'
 ```
 
 ### Component Structure
@@ -173,13 +240,25 @@ Components follow this pattern:
 - Client Components marked with `'use client'`
 
 ### Data Flow
-Currently using mock/generated data from `lib/` directory:
-- `data.ts` - Main export point for course data
-- `courses-generated.ts` - Generated course catalog
-- `course-descriptions.ts` - AI-generated detailed course descriptions (large file ~177KB)
-- `course-data-raw.ts` - Raw course data structure
-- Multiple IT courses across categories (Frontend, Backend, DevOps, Cloud, AI/ML, etc.)
-- Each course includes: slug, title, description, price, schedules, instructor info, and curriculum
+**Current Architecture**: Supabase Database (migrated from mock data)
+
+#### Database Tables
+- **courses** (79 records): Main course catalog with full details
+- **course_schedules** (237 records): 3 schedules per course with dates and locations
+- **profiles**: User profiles (auto-created on signup)
+- **enrollments**: User course enrollments
+- **payments**: Payment transactions
+- **wishlists**: User wishlist items
+- **reviews**: Course reviews and ratings
+
+#### Legacy Mock Data (Still Available)
+The following files contain the original mock data, now migrated to Supabase:
+- `lib/data.ts` - Original export point (legacy)
+- `lib/courses-generated.ts` - Generated course catalog (legacy)
+- `lib/course-descriptions.ts` - AI-generated detailed descriptions (~177KB)
+- `lib/course-data-raw.ts` - Raw course structure (legacy)
+
+**IMPORTANT**: For new development, fetch data from Supabase using Server Components or Server Actions, not from these legacy files.
 
 ### Styling Conventions
 - Tailwind utility classes for styling
@@ -231,6 +310,9 @@ Use specialized agents in `.claude/agents/`:
 - `course-architect.md` - Plans course platform features and architecture
 - `courses-ui-designer.md` - Course UI/UX design patterns and implementations
 - `payment-flow-expert.md` - Stripe integration and payment flow guidance
+- `supabase-integration-expert.md` - Supabase setup, migration, and best practices
+- `production-db-migration-specialist.md` - Production database migration guide and safety protocols
+- `auth-integration-specialist.md` - Authentication UI integration with Supabase backend
 - `accessibility-checker.md` - WCAG compliance and a11y best practices
 - `seo-optimizer.md` - SEO optimization and search visibility
 - `homepage-designer.md` - Homepage design and UX patterns
@@ -262,7 +344,7 @@ Use slash commands for streamlined git workflows:
 - **Core Pages**: Homepage, course catalog, course detail pages, checkout flow
 - **Marketing Pages**: About, Contact, Corporate training, FAQ, Privacy, Terms
 - **User Flow**: Login, Register, Forgot Password, Enrollment (Inschrijven)
-- **Admin Dashboard**: Overview with mock data
+- **Admin Dashboard**: Overview with metrics
 - **Filtering & Search**:
   - Course catalog filtering (category, format, language)
   - Search bar with instant results
@@ -273,16 +355,23 @@ Use slash commands for streamlined git workflows:
 - **API Routes**: API directory with Next.js route handlers
 - **Responsive Design**: Mobile-first approach across all pages
 - **Dutch Language**: All content in Dutch as required
+- **Database**: Supabase PostgreSQL with 7 tables and RLS policies
+- **Authentication Backend**: Supabase Auth with Server Actions
+- **Data Migration**: 79 courses and 237 schedules successfully migrated
+- **Session Management**: Middleware for auth session handling
+
+### Partially Implemented (Backend Ready, UI Integration Needed)
+- **Authentication**: Server Actions ready (`app/actions/auth.ts`), UI needs to connect
+- **Enrollments**: Server Actions ready (`app/actions/enrollments.ts`), course pages need enrollment buttons
+- **Wishlist Persistence**: Database table ready, UI needs Supabase integration
+- **Reviews**: Database table and RLS policies ready, UI not implemented
 
 ### Not Yet Implemented
-- **Database integration** (currently mock data only)
-- **Authentication** (UI exists, no backend)
-- **Payment processing** (checkout UI only)
+- **Payment processing** (checkout UI only - Stripe integration pending)
 - **Testing infrastructure** (documented but not implemented - no test runner configured)
-- **Email notifications**
-- **User reviews/ratings**
+- **Email notifications** (Supabase email templates need configuration)
 - **Certificate generation**
-- **Wishlist persistence** (hook exists but no backend storage)
+- **Admin CRUD operations** (dashboard UI exists, course/user management actions needed)
 
 ## Adding New Features
 
@@ -313,17 +402,42 @@ Use slash commands for streamlined git workflows:
 ## Common Tasks
 
 ### Adding a New Course
-1. Add course data to `techtrain-courses/lib/courses-generated.ts` or `course-data-raw.ts`
-2. If needed, add AI-generated descriptions to `course-descriptions.ts`
-3. Ensure the course is exported from `data.ts`
-4. Include all required fields: slug, title, description, price, schedules, etc.
+**Current Method** (Using Supabase):
+1. Insert course data directly into Supabase `courses` table via SQL or Supabase dashboard
+2. Add corresponding schedules to `course_schedules` table
+3. Ensure all required fields are included: slug, title, description, price, category, etc.
+4. Set `published` to `true` to make the course visible
 5. All content must be in Dutch
 
+**Legacy Method** (Mock Data - Deprecated):
+1. ~~Add course data to `lib/courses-generated.ts` or `course-data-raw.ts`~~
+2. ~~Run migration script: `npx tsx scripts/migrate-to-supabase.ts`~~
+
 ### Working with Course Data
-- **Primary export**: Import from `lib/data.ts`
-- **Generated courses**: Located in `courses-generated.ts`
-- **Descriptions**: Large AI-generated content in `course-descriptions.ts` (~177KB)
-- **Raw data**: Base structure in `course-data-raw.ts`
+**Current Architecture**:
+- **Primary source**: Supabase `courses` table (fetch via Server Components)
+- **Server Actions**: Use `app/actions/` for mutations
+- **TypeScript types**: Import from `types/database.types.ts`
+
+**Example: Fetching Courses**
+```typescript
+import { createClient } from '@/lib/supabase/server'
+
+const supabase = createClient()
+const { data: courses, error } = await supabase
+  .from('courses')
+  .select(`
+    *,
+    course_schedules(*)
+  `)
+  .eq('published', true)
+```
+
+**Legacy Files** (Still available but deprecated for new features):
+- `lib/data.ts` - Original mock export
+- `lib/courses-generated.ts` - Generated catalog
+- `lib/course-descriptions.ts` - AI descriptions (~177KB)
+- `lib/course-data-raw.ts` - Raw structure
 
 ### Adding a New Page
 1. Create directory in `app/`
@@ -360,23 +474,44 @@ All user-facing content MUST be in Dutch:
 - Course content and descriptions
 - Error messages
 
-### No Database Yet
-Current implementation uses mock data from `lib/data.ts`. When implementing database:
-- The README mentions Prisma + PostgreSQL in template docs
-- Migration strategy needed for mock data
-- Consider using Prisma schema from template documentation
+### Supabase Database Integration
+**Status**: ✅ Fully integrated and operational
 
-### Authentication is Demo Mode
-Login page exists but doesn't authenticate. To implement:
-- NextAuth.js recommended (mentioned in template docs)
-- Update login page to integrate with auth provider
-- Add session management
+- **Database**: PostgreSQL via Supabase
+- **Tables**: 7 tables with Row Level Security (RLS) enabled
+- **Data**: 79 courses and 237 schedules migrated
+- **Environment**: Requires `.env.local` configuration (see `.env.local.example`)
+- **Migration**: Use `npx tsx scripts/migrate-to-supabase.ts` if re-migration needed
+- **Schema**: Located in `supabase/schema.sql`
 
-### Payment is Demo Mode
-Checkout flow exists but doesn't process payments. To implement:
-- Stripe integration recommended (mentioned in template docs)
+### Authentication - Backend Ready
+**Status**: ⚠️ Backend implemented, UI integration pending
+
+- **Backend**: Supabase Auth with Server Actions (`app/actions/auth.ts`)
+- **Available Actions**: `signUp`, `signIn`, `signOut`, `resetPassword`
+- **Session Management**: Middleware configured (`middleware.ts`)
+- **Next Steps**: Connect login/register forms to Server Actions
+- **Email**: Supabase handles email verification and password resets
+
+### Payment Processing
+**Status**: ❌ Not implemented (Checkout UI only)
+
+To implement:
+- Stripe integration recommended (use Payment Flow Expert agent)
 - Update checkout page with Stripe SDK
 - Add webhook handling for payment events
+- Consider Supabase Edge Functions for webhook processing
+
+### Environment Variables
+**Required** (`.env.local`):
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+**Never commit** `.env.local` to git - it's already in `.gitignore`.
 
 ## Development Philosophy
 
@@ -393,6 +528,7 @@ This project strongly emphasizes TDD. Before writing any feature:
 Leverage specialized agents for:
 - Complex feature planning (Course Architect)
 - TDD guidance (Test-First Guide)
+- Database operations (Supabase Integration Expert)
 - Payment flows (Payment Expert)
 - Accessibility (A11y Checker)
 - SEO optimization (SEO Optimizer)
@@ -411,12 +547,23 @@ Use semantic commit messages:
 - **TDD Workflow**: [`docs/TDD_WORKFLOW.md`](docs/TDD_WORKFLOW.md) - Comprehensive TDD guide with examples
 - **Usage Guide**: [`docs/USAGE.md`](docs/USAGE.md) - Detailed usage instructions and workflows
 - **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) - Deployment strategies and configurations
+- **Production Roadmap**: [`PRODUCTION_ROADMAP.md`](PRODUCTION_ROADMAP.md) - Complete production deployment roadmap with task breakdown
 - **TechTrain README**: [`techtrain-courses/README.md`](techtrain-courses/README.md) - Implementation status and tech stack
 - **Codebase Review**: [`techtrain-courses/CODEBASE_REVIEW.md`](techtrain-courses/CODEBASE_REVIEW.md) - Detailed codebase analysis
 - **Site Health Check**: [`techtrain-courses/SITE_HEALTH_CHECK.md`](techtrain-courses/SITE_HEALTH_CHECK.md) - Site health and performance metrics
+- **Supabase Setup**: [`techtrain-courses/SUPABASE_SETUP.md`](techtrain-courses/SUPABASE_SETUP.md) - Supabase setup and configuration guide
+- **Supabase Integration Complete**: [`techtrain-courses/SUPABASE_INTEGRATION_COMPLETE.md`](techtrain-courses/SUPABASE_INTEGRATION_COMPLETE.md) - Integration status and next steps
+- **Production Migration Guide**: [`techtrain-courses/PRODUCTION_MIGRATION_GUIDE.md`](techtrain-courses/PRODUCTION_MIGRATION_GUIDE.md) - ✅ Step-by-step production database migration guide
+- **Production Checklist**: [`techtrain-courses/PRODUCTION_CHECKLIST.md`](techtrain-courses/PRODUCTION_CHECKLIST.md) - ✅ Comprehensive pre-launch checklist
 
 ### Configuration Files
 - **TypeScript**: [`techtrain-courses/tsconfig.json`](techtrain-courses/tsconfig.json) - Strict mode enabled, path aliases configured
 - **Tailwind**: [`techtrain-courses/tailwind.config.ts`](techtrain-courses/tailwind.config.ts) - Custom design system configuration
 - **Next.js**: [`techtrain-courses/next.config.js`](techtrain-courses/next.config.js) - Next.js configuration
+- **Environment**: [`techtrain-courses/.env.local.example`](techtrain-courses/.env.local.example) - Development environment variables template
+- **Production Environment**: [`techtrain-courses/.env.production.example`](techtrain-courses/.env.production.example) - ✅ Production environment variables template
+- **Database Schema**: [`techtrain-courses/supabase/schema.sql`](techtrain-courses/supabase/schema.sql) - Complete database schema with RLS
+- **Migration Verification**: [`techtrain-courses/supabase/verify-migration.sql`](techtrain-courses/supabase/verify-migration.sql) - ✅ SQL queries for verifying migration
+- **Migration Script**: [`techtrain-courses/scripts/migrate-to-supabase.ts`](techtrain-courses/scripts/migrate-to-supabase.ts) - ✅ Enhanced with production safety checks
+- **Middleware**: [`techtrain-courses/middleware.ts`](techtrain-courses/middleware.ts) - Session management middleware
 - **Claude Settings**: [`.claude/settings.local.json`](.claude/settings.local.json) - Claude Code settings

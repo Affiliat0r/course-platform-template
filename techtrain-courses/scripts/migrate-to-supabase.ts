@@ -6,7 +6,8 @@
  * Usage:
  * 1. Ensure you have set up your Supabase project and environment variables
  * 2. Run the database schema in Supabase SQL Editor (supabase/schema.sql)
- * 3. Run this script: npx tsx scripts/migrate-to-supabase.ts
+ * 3. For development: npx tsx scripts/migrate-to-supabase.ts
+ * 4. For production: NODE_ENV=production npx tsx scripts/migrate-to-supabase.ts
  *
  * Requirements:
  * - npm install tsx --save-dev (if not already installed)
@@ -17,9 +18,14 @@ import { createClient } from '@supabase/supabase-js'
 import { courses } from '../lib/data'
 import { config } from 'dotenv'
 import { resolve } from 'path'
+import * as readline from 'readline'
 
 // Load environment variables from .env.local
 config({ path: resolve(__dirname, '../.env.local') })
+
+// Detect environment
+const isProduction = process.env.NODE_ENV === 'production'
+const isDryRun = process.env.DRY_RUN === 'true'
 
 // Use service role key for migration (has admin privileges)
 const supabase = createClient(
@@ -33,6 +39,54 @@ interface MigrationStats {
   errors: string[]
 }
 
+/**
+ * Prompt user for confirmation in production mode
+ */
+async function confirmProduction(): Promise<boolean> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  return new Promise((resolve) => {
+    rl.question('Type "CONFIRM" to proceed: ', (answer: string) => {
+      rl.close()
+      resolve(answer === 'CONFIRM')
+    })
+  })
+}
+
+/**
+ * Verify database connection and show current state
+ */
+async function verifyDatabase() {
+  console.log('\n🔍 Verifying database connection...')
+
+  try {
+    const { data: existingCourses, error } = await supabase
+      .from('courses')
+      .select('id, title')
+      .limit(5)
+
+    if (error) {
+      throw new Error(`Database connection failed: ${error.message}`)
+    }
+
+    console.log(`✅ Connected to: ${process.env.NEXT_PUBLIC_SUPABASE_URL}`)
+    console.log(`📊 Current courses in database: ${existingCourses?.length || 0}`)
+
+    if (existingCourses && existingCourses.length > 0) {
+      console.log('\n⚠️  WARNING: Database already contains courses!')
+      console.log('   This migration will add new courses (may create duplicates)')
+    }
+
+    return true
+  } catch (error) {
+    console.error('❌ Database verification failed:', error)
+    return false
+  }
+}
+
 async function migrateCourses() {
   const stats: MigrationStats = {
     coursesCreated: 0,
@@ -40,12 +94,56 @@ async function migrateCourses() {
     errors: []
   }
 
-  console.log('🚀 Starting migration to Supabase...')
+  console.log('\n' + '='.repeat(60))
+  console.log('🚀 SUPABASE MIGRATION TOOL')
+  console.log('='.repeat(60))
+  console.log(`Environment: ${isProduction ? '🔴 PRODUCTION' : '🟢 DEVELOPMENT'}`)
+  console.log(`Mode: ${isDryRun ? '👁️  DRY RUN (no changes)' : '✍️  LIVE (will write data)'}`)
+  console.log(`Courses to migrate: ${courses.length}`)
+  console.log('='.repeat(60))
+
+  // Production safety checks
+  if (isProduction) {
+    console.log('\n⚠️  WARNING: Running in PRODUCTION mode')
+    console.log('This will migrate data to your production database.')
+    console.log('Make sure you have:')
+    console.log('  1. ✅ Backed up your production database')
+    console.log('  2. ✅ Tested migration on a test/staging environment')
+    console.log('  3. ✅ Verified your production credentials are correct')
+    console.log('')
+
+    const confirmed = await confirmProduction()
+    if (!confirmed) {
+      console.log('\n❌ Migration cancelled by user.')
+      return
+    }
+  }
+
+  // Verify database connection
+  const dbOk = await verifyDatabase()
+  if (!dbOk) {
+    console.log('\n❌ Migration aborted: Database verification failed')
+    return
+  }
+
+  if (isDryRun) {
+    console.log('\n👁️  DRY RUN MODE: No data will be written to database')
+  }
+
+  console.log('\n🚀 Starting migration...')
   console.log(`📚 Found ${courses.length} courses to migrate\n`)
 
   for (const course of courses) {
     try {
       console.log(`Migrating: ${course.title}...`)
+
+      if (isDryRun) {
+        console.log(`  👁️  Would create course: ${course.title}`)
+        console.log(`  👁️  Would create ${course.dates?.length || 0} schedules`)
+        stats.coursesCreated++
+        stats.schedulesCreated += course.dates?.length || 0
+        continue
+      }
 
       // 1. Insert course
       const { data: courseData, error: courseError } = await supabase
@@ -73,7 +171,7 @@ async function migrateCourses() {
       }
 
       stats.coursesCreated++
-      console.log(`  ✅ Course created`)
+      console.log(`  ✅ Course created (ID: ${courseData.id})`)
 
       // 2. Insert schedules based on course dates
       if (course.dates && course.dates.length > 0) {
