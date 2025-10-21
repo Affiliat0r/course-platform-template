@@ -3,8 +3,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
+import { authLimiter, getClientIpFromHeaders, checkRateLimit } from '@/lib/rate-limit'
+import { sendWelcomeEmail } from '@/lib/email'
 
 export async function signUp(formData: FormData) {
+  // Rate limiting check
+  const headersList = await headers()
+  const ip = getClientIpFromHeaders(headersList)
+  const rateLimitResult = await checkRateLimit(authLimiter, ip)
+
+  if (!rateLimitResult.success) {
+    return {
+      error: 'Te veel pogingen. Probeer het over 15 minuten opnieuw.',
+      remaining: 0
+    }
+  }
+
   const supabase = await createClient()
 
   const email = formData.get('email') as string
@@ -19,7 +34,7 @@ export async function signUp(formData: FormData) {
     return { error: 'Wachtwoord moet minimaal 8 tekens bevatten' }
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -33,10 +48,27 @@ export async function signUp(formData: FormData) {
     return { error: error.message }
   }
 
+  // Send welcome email after successful registration
+  if (data.user && fullName) {
+    await sendWelcomeEmail(email, fullName)
+  }
+
   redirect('/login?message=Controleer uw e-mail om uw account te bevestigen')
 }
 
 export async function signIn(formData: FormData) {
+  // Rate limiting check
+  const headersList = await headers()
+  const ip = getClientIpFromHeaders(headersList)
+  const rateLimitResult = await checkRateLimit(authLimiter, ip)
+
+  if (!rateLimitResult.success) {
+    return {
+      error: 'Te veel inlogpogingen. Probeer het over 15 minuten opnieuw.',
+      remaining: 0
+    }
+  }
+
   const supabase = await createClient()
 
   const email = formData.get('email') as string
@@ -67,6 +99,18 @@ export async function signOut() {
 }
 
 export async function resetPassword(formData: FormData) {
+  // Rate limiting check
+  const headersList = await headers()
+  const ip = getClientIpFromHeaders(headersList)
+  const rateLimitResult = await checkRateLimit(authLimiter, ip)
+
+  if (!rateLimitResult.success) {
+    return {
+      error: 'Te veel pogingen. Probeer het over 15 minuten opnieuw.',
+      remaining: 0
+    }
+  }
+
   const supabase = await createClient()
 
   const email = formData.get('email') as string

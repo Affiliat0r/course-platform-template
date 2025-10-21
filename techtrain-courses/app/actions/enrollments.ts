@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendEnrollmentConfirmation } from '@/lib/email'
 
 export async function createEnrollment(courseId: string, scheduleId?: string) {
   const supabase = await createClient()
@@ -27,7 +28,7 @@ export async function createEnrollment(courseId: string, scheduleId?: string) {
   }
 
   // Create enrollment
-  const { data, error } = await supabase
+  const { data: enrollment, error } = await supabase
     .from('enrollments')
     .insert({
       user_id: user.id,
@@ -36,15 +37,46 @@ export async function createEnrollment(courseId: string, scheduleId?: string) {
       status: 'active',
       progress: 0,
     })
-    .select()
+    .select(`
+      *,
+      course:courses(title, price),
+      schedule:course_schedules(start_date, location)
+    `)
     .single()
 
   if (error) {
     return { error: error.message }
   }
 
+  // Send enrollment confirmation email
+  if (enrollment) {
+    // Get user profile for full name and email
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single()
+
+    if (profile && enrollment.course && enrollment.schedule) {
+      const startDate = new Date(enrollment.schedule.start_date).toLocaleDateString('nl-NL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+
+      await sendEnrollmentConfirmation({
+        to: profile.email || user.email || '',
+        fullName: profile.full_name || 'Student',
+        courseTitle: enrollment.course.title,
+        startDate: startDate,
+        location: enrollment.schedule.location,
+        price: enrollment.course.price,
+      })
+    }
+  }
+
   revalidatePath('/dashboard')
-  return { data, success: true, message: 'Succesvol ingeschreven voor de cursus!' }
+  return { data: enrollment, success: true, message: 'Succesvol ingeschreven voor de cursus!' }
 }
 
 export async function getUserEnrollments() {

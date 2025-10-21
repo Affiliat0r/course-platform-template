@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Edit, Trash2, TrendingUp, Users, BookOpen, DollarSign } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { courses } from '@/lib/data';
 import { formatPrice } from '@/lib/utils';
 import Image from 'next/image';
+import { useUser } from '@/contexts/UserContext';
+import { createClient } from '@/lib/supabase/client';
 
 const mockOrders = [
   { id: 'ORD-001', customer: 'John Doe', date: '2025-11-08', course: 'Advanced Cyber Security', status: 'completed', total: 1399 },
@@ -18,20 +21,124 @@ const mockOrders = [
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'courses' | 'schedules' | 'orders' | 'users'>('courses');
+  const { user, loading } = useUser();
+  const router = useRouter();
+  const [enrollmentStats, setEnrollmentStats] = useState({
+    totalEnrollments: 0,
+    activeEnrollments: 0,
+    newEnrollmentsToday: 0,
+    uniqueStudents: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (user) {
+      loadEnrollmentStats();
+    }
+  }, [user]);
+
+  const loadEnrollmentStats = async () => {
+    const supabase = createClient();
+
+    try {
+      // Total enrollments
+      const { count: totalEnrollments } = await supabase
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true });
+
+      // Active enrollments
+      const { count: activeEnrollments } = await supabase
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      // New enrollments today
+      const today = new Date().toISOString().split('T')[0];
+      const { count: newEnrollmentsToday } = await supabase
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .gte('enrolled_at', today);
+
+      // Unique students (count distinct user_ids)
+      const { data: uniqueUsers } = await supabase
+        .from('enrollments')
+        .select('user_id');
+
+      const uniqueStudents = new Set(uniqueUsers?.map((e) => e.user_id) || []).size;
+
+      setEnrollmentStats({
+        totalEnrollments: totalEnrollments || 0,
+        activeEnrollments: activeEnrollments || 0,
+        newEnrollmentsToday: newEnrollmentsToday || 0,
+        uniqueStudents,
+      });
+    } catch (error) {
+      console.error('Error loading enrollment stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   const stats = [
-    { label: 'Totale Omzet', value: formatPrice(45200), icon: DollarSign, change: '+12%', trend: 'up' },
-    { label: 'Nieuwe Inschrijvingen', value: '92', icon: TrendingUp, change: '+8%', trend: 'up' },
-    { label: 'Totaal Cursussen', value: courses.length.toString(), icon: BookOpen, change: '+2', trend: 'up' },
-    { label: 'Actieve Studenten', value: '324', icon: Users, change: '+15%', trend: 'up' },
+    {
+      label: 'Totaal Inschrijvingen',
+      value: statsLoading ? '...' : enrollmentStats.totalEnrollments.toString(),
+      icon: BookOpen,
+      change: statsLoading ? '' : `${enrollmentStats.newEnrollmentsToday} vandaag`,
+      trend: 'up',
+    },
+    {
+      label: 'Actieve Inschrijvingen',
+      value: statsLoading ? '...' : enrollmentStats.activeEnrollments.toString(),
+      icon: TrendingUp,
+      change: '',
+      trend: 'up',
+    },
+    {
+      label: 'Totaal Cursussen',
+      value: courses.length.toString(),
+      icon: BookOpen,
+      change: '+2',
+      trend: 'up',
+    },
+    {
+      label: 'Actieve Studenten',
+      value: statsLoading ? '...' : enrollmentStats.uniqueStudents.toString(),
+      icon: Users,
+      change: '',
+      trend: 'up',
+    },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-secondary-600">Bezig met laden...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-secondary-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-secondary-900">Admin Dashboard</h1>
-          <p className="text-secondary-600 mt-1">Beheer je cursussen, schema's en bestellingen</p>
+          <p className="text-secondary-600 mt-1">
+            Beheer je cursussen, schema's en bestellingen • Ingelogd als {user.email}
+          </p>
         </div>
 
         {/* Stats */}

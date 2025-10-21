@@ -40,7 +40,11 @@
       "Bash(timeout 3 bash -c 'while ! curl -s http://localhost:3000 > /dev/null; do sleep 0.5; done && echo \"\"Server ready!\"\"')",
       "Bash(tree:*)",
       "Bash(ls:*)",
-      "Bash(npx tsx scripts/migrate-to-supabase.ts)"
+      "Bash(npx tsx scripts/migrate-to-supabase.ts)",
+      "Bash(timeout 10 bash:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git log:*)",
+      "Bash(npm run test:run:*)"
     ],
     "deny": [],
     "ask": []
