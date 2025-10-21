@@ -54,11 +54,5 @@
       "destination": "/",
       "permanent": true
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/health",
-      "schedule": "*/5 * * * *"
-    }
   ]
 }
