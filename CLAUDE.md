@@ -544,26 +544,50 @@ Use semantic commit messages:
 ## Resources
 
 ### Documentation
+
+**Root Documentation**:
 - **TDD Workflow**: [`docs/TDD_WORKFLOW.md`](docs/TDD_WORKFLOW.md) - Comprehensive TDD guide with examples
 - **Usage Guide**: [`docs/USAGE.md`](docs/USAGE.md) - Detailed usage instructions and workflows
 - **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) - Deployment strategies and configurations
-- **Production Roadmap**: [`PRODUCTION_ROADMAP.md`](PRODUCTION_ROADMAP.md) - Complete production deployment roadmap with task breakdown
-- **TechTrain README**: [`techtrain-courses/README.md`](techtrain-courses/README.md) - Implementation status and tech stack
-- **Codebase Review**: [`techtrain-courses/CODEBASE_REVIEW.md`](techtrain-courses/CODEBASE_REVIEW.md) - Detailed codebase analysis
-- **Site Health Check**: [`techtrain-courses/SITE_HEALTH_CHECK.md`](techtrain-courses/SITE_HEALTH_CHECK.md) - Site health and performance metrics
-- **Supabase Setup**: [`techtrain-courses/SUPABASE_SETUP.md`](techtrain-courses/SUPABASE_SETUP.md) - Supabase setup and configuration guide
-- **Supabase Integration Complete**: [`techtrain-courses/SUPABASE_INTEGRATION_COMPLETE.md`](techtrain-courses/SUPABASE_INTEGRATION_COMPLETE.md) - Integration status and next steps
-- **Production Migration Guide**: [`techtrain-courses/PRODUCTION_MIGRATION_GUIDE.md`](techtrain-courses/PRODUCTION_MIGRATION_GUIDE.md) - ✅ Step-by-step production database migration guide
-- **Production Checklist**: [`techtrain-courses/PRODUCTION_CHECKLIST.md`](techtrain-courses/PRODUCTION_CHECKLIST.md) - ✅ Comprehensive pre-launch checklist
+- **Production Roadmap**: [`PRODUCTION_ROADMAP.md`](PRODUCTION_ROADMAP.md) - Complete production deployment checklist
+
+**TechTrain Documentation**:
+- **README**: [`techtrain-courses/README.md`](techtrain-courses/README.md) - Implementation status and tech stack
+- **Docs Index**: [`techtrain-courses/docs/README.md`](techtrain-courses/docs/README.md) - Documentation navigation
+
+**Status Reports** (`techtrain-courses/docs/status/`):
+- **Codebase Review**: [`CODEBASE_REVIEW.md`](techtrain-courses/docs/status/CODEBASE_REVIEW.md) - Detailed codebase analysis
+- **Site Health Check**: [`SITE_HEALTH_CHECK.md`](techtrain-courses/docs/status/SITE_HEALTH_CHECK.md) - Site health and performance metrics
+- **Supabase Integration**: [`SUPABASE_INTEGRATION_COMPLETE.md`](techtrain-courses/docs/status/SUPABASE_INTEGRATION_COMPLETE.md) - Integration status
+- **Stripe Integration**: [`STRIPE_INTEGRATION_COMPLETE.md`](techtrain-courses/docs/status/STRIPE_INTEGRATION_COMPLETE.md) - Payment integration status
+- **Email Integration**: [`EMAIL_IMPLEMENTATION_COMPLETE.md`](techtrain-courses/docs/status/EMAIL_IMPLEMENTATION_COMPLETE.md) - Email system status
+- **Enrollment Integration**: [`ENROLLMENT_INTEGRATION_COMPLETE.md`](techtrain-courses/docs/status/ENROLLMENT_INTEGRATION_COMPLETE.md) - Enrollment system status
+- **Testing Setup**: [`TESTING_SETUP_COMPLETE.md`](techtrain-courses/docs/status/TESTING_SETUP_COMPLETE.md) - Testing infrastructure status
+- **Security Implementation**: [`SECURITY_IMPLEMENTATION_SUMMARY.md`](techtrain-courses/docs/status/SECURITY_IMPLEMENTATION_SUMMARY.md) - Security status
+
+**Setup Guides** (`techtrain-courses/docs/setup/`):
+- **Supabase Setup**: [`SUPABASE_SETUP.md`](techtrain-courses/docs/setup/SUPABASE_SETUP.md) - Database setup guide
+- **Stripe Setup**: [`STRIPE_SETUP.md`](techtrain-courses/docs/setup/STRIPE_SETUP.md) - Payment setup guide
+- **Email Setup**: [`EMAIL_SETUP.md`](techtrain-courses/docs/setup/EMAIL_SETUP.md) - Email service setup guide
+
+**Implementation Guides** (`techtrain-courses/docs/guides/`):
+- **Production Migration**: [`PRODUCTION_MIGRATION_GUIDE.md`](techtrain-courses/docs/guides/PRODUCTION_MIGRATION_GUIDE.md) - Database migration guide
+- **Production Checklist**: [`PRODUCTION_CHECKLIST.md`](techtrain-courses/docs/guides/PRODUCTION_CHECKLIST.md) - Pre-launch checklist
+- **Deployment Checklist**: [`DEPLOYMENT_CHECKLIST.md`](techtrain-courses/docs/guides/DEPLOYMENT_CHECKLIST.md) - Pre-deployment checklist
+- **Vercel Deployment**: [`VERCEL_DEPLOYMENT_GUIDE.md`](techtrain-courses/docs/guides/VERCEL_DEPLOYMENT_GUIDE.md) - Vercel deployment steps
+- **Security Guide**: [`SECURITY.md`](techtrain-courses/docs/guides/SECURITY.md) - Security best practices
+- **Stripe Quick Start**: [`STRIPE_QUICK_START.md`](techtrain-courses/docs/guides/STRIPE_QUICK_START.md) - Quick Stripe reference
+- **Email Quick Reference**: [`QUICK_EMAIL_REFERENCE.md`](techtrain-courses/docs/guides/QUICK_EMAIL_REFERENCE.md) - Quick email reference
 
 ### Configuration Files
 - **TypeScript**: [`techtrain-courses/tsconfig.json`](techtrain-courses/tsconfig.json) - Strict mode enabled, path aliases configured
 - **Tailwind**: [`techtrain-courses/tailwind.config.ts`](techtrain-courses/tailwind.config.ts) - Custom design system configuration
 - **Next.js**: [`techtrain-courses/next.config.js`](techtrain-courses/next.config.js) - Next.js configuration
-- **Environment**: [`techtrain-courses/.env.local.example`](techtrain-courses/.env.local.example) - Development environment variables template
-- **Production Environment**: [`techtrain-courses/.env.production.example`](techtrain-courses/.env.production.example) - ✅ Production environment variables template
+- **Environment**: [`techtrain-courses/.env.local.example`](techtrain-courses/.env.local.example) - Environment variables template
 - **Database Schema**: [`techtrain-courses/supabase/schema.sql`](techtrain-courses/supabase/schema.sql) - Complete database schema with RLS
-- **Migration Verification**: [`techtrain-courses/supabase/verify-migration.sql`](techtrain-courses/supabase/verify-migration.sql) - ✅ SQL queries for verifying migration
-- **Migration Script**: [`techtrain-courses/scripts/migrate-to-supabase.ts`](techtrain-courses/scripts/migrate-to-supabase.ts) - ✅ Enhanced with production safety checks
 - **Middleware**: [`techtrain-courses/middleware.ts`](techtrain-courses/middleware.ts) - Session management middleware
 - **Claude Settings**: [`.claude/settings.local.json`](.claude/settings.local.json) - Claude Code settings
+
+### Claude Agents
+- **Agents Directory**: [`.claude/agents/`](.claude/agents/) - Specialized agents for production deployment
+- **Agents Guide**: [`.claude/AGENTS_README.md`](.claude/AGENTS_README.md) - How to use the agents

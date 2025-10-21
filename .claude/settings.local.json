@@ -44,7 +44,8 @@
       "Bash(timeout 10 bash:*)",
       "Bash(npx tsx:*)",
       "Bash(git log:*)",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "Bash(DRY_RUN=true npx tsx:*)"
     ],
     "deny": [],
     "ask": []
