@@ -31,7 +31,10 @@
       "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -20 \"\"\"\"{}\"\"\"\"')",
       "Bash(git stash:*)",
       "Bash(git restore:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []
