@@ -34,6 +34,7 @@ export default function Logo({
         width={widths[size]}
         height={heights[size]}
         priority // Load logo immediately
+        unoptimized // SVGs don't need Next.js optimization
         className="h-auto w-auto"
       />
     </Link>
