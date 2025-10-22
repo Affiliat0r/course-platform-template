@@ -1,23 +1,36 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Calendar, Check, AlertCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { format } from 'date-fns';
+import { nl } from 'date-fns/locale';
+import { Calendar, Check, AlertCircle, MapPin, Users } from 'lucide-react';
 import { Course } from '@/types';
-import { formatPrice, formatDate, formatDateWithDay, getWeekday } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useUser } from '@/contexts/UserContext';
 import { createEnrollment, checkEnrollment } from '@/app/actions/enrollments';
+import { checkScheduleAvailability } from '@/app/actions/schedules';
 import { translateEnrollmentError } from '@/lib/translate-error';
+import type { CourseSchedule } from '@/app/actions/schedules';
 
 interface CourseBookingFormProps {
   course: Course;
+  schedules: CourseSchedule[];
 }
 
-export default function CourseBookingForm({ course }: CourseBookingFormProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+export default function CourseBookingForm({ course, schedules }: CourseBookingFormProps) {
+  const searchParams = useSearchParams();
+  const preselectedScheduleId = searchParams.get('schedule');
+
+  const [selectedScheduleId, setSelectedScheduleId] = useState<string>(
+    preselectedScheduleId || schedules[0]?.id || ''
+  );
+  const [availability, setAvailability] = useState<{
+    available: boolean
+    spots: number
+  } | null>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +46,18 @@ export default function CourseBookingForm({ course }: CourseBookingFormProps) {
     }
   }, [user, course.id]);
 
+  // Check availability when schedule changes
+  useEffect(() => {
+    if (selectedScheduleId) {
+      checkScheduleAvailability(selectedScheduleId).then(result => {
+        setAvailability({
+          available: result.available,
+          spots: result.spots
+        });
+      });
+    }
+  }, [selectedScheduleId]);
+
   const checkEnrollmentStatus = async () => {
     const result = await checkEnrollment(course.id);
     setIsEnrolled(result.isEnrolled);
@@ -45,11 +70,13 @@ export default function CourseBookingForm({ course }: CourseBookingFormProps) {
       return;
     }
 
+    if (!selectedScheduleId) return;
+
     setError(null);
     setSuccess(null);
 
     startTransition(async () => {
-      const result = await createEnrollment(course.id);
+      const result = await createEnrollment(course.id, selectedScheduleId);
 
       if (result.error) {
         setError(translateEnrollmentError(result.error));
@@ -66,57 +93,74 @@ export default function CourseBookingForm({ course }: CourseBookingFormProps) {
     });
   };
 
+  if (schedules.length === 0) {
+    return (
+      <Card className="p-6 sticky top-20">
+        <h3 className="text-xl font-bold mb-4">Geen beschikbare data</h3>
+        <p className="text-gray-600 mb-4">
+          Momenteel geen geplande data voor deze cursus.
+        </p>
+        <Button size="lg" className="w-full" onClick={() => router.push('/contact')}>
+          Neem Contact Op
+        </Button>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-6 sticky top-20">
-      <h3 className="text-xl font-bold mb-4">Eerstvolgende Beschikbare Data</h3>
+      <h3 className="text-xl font-bold mb-4">Selecteer een datum</h3>
 
-      {/* Calendar/Dates */}
+      {/* Schedule Selection */}
       <div className="mb-6">
-        <div className="text-sm font-medium text-secondary-700 mb-3">Selecteer een startdatum</div>
         <div className="space-y-3">
-          {course.dates.map((date, index) => (
-            <button
-              key={index}
-              onClick={() => setSelectedDate(date)}
-              className={`w-full text-left px-4 py-4 rounded-lg border-2 transition-all duration-200 ${
-                selectedDate?.getTime() === date.getTime()
-                  ? 'border-primary-600 bg-primary-50 shadow-md'
-                  : 'border-secondary-200 hover:border-primary-400 hover:shadow-sm'
-              }`}
-              aria-label={`Selecteer datum ${formatDateWithDay(date)}`}
-              aria-pressed={selectedDate?.getTime() === date.getTime()}
+          {schedules.map(schedule => (
+            <label
+              key={schedule.id}
+              className={`
+                block p-4 border-2 rounded-lg cursor-pointer transition-all
+                ${selectedScheduleId === schedule.id
+                  ? 'border-blue-600 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                }
+              `}
             >
-              <div className="flex items-start gap-3">
-                <div className={`mt-0.5 ${
-                  selectedDate?.getTime() === date.getTime()
-                    ? 'text-primary-600'
-                    : 'text-secondary-400'
-                }`}>
-                  <Calendar className="w-5 h-5" />
-                </div>
+              <input
+                type="radio"
+                name="schedule"
+                value={schedule.id}
+                checked={selectedScheduleId === schedule.id}
+                onChange={(e) => setSelectedScheduleId(e.target.value)}
+                className="sr-only"
+              />
+              <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
-                    selectedDate?.getTime() === date.getTime()
-                      ? 'text-primary-700'
-                      : 'text-secondary-500'
-                  }`}>
-                    {getWeekday(date)}
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <div className="font-medium text-gray-900">
+                      {format(new Date(schedule.start_date), 'EEEE d MMMM yyyy', { locale: nl })}
+                    </div>
                   </div>
-                  <div className={`text-base font-bold ${
-                    selectedDate?.getTime() === date.getTime()
-                      ? 'text-primary-900'
-                      : 'text-secondary-900'
-                  }`}>
-                    {formatDate(date)}
+                  {schedule.location && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
+                      <MapPin className="w-3 h-3" />
+                      <span>{schedule.location}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-3 h-3 text-gray-400" />
+                    <span className={`font-medium ${
+                      schedule.available_spots > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {schedule.available_spots > 0
+                        ? `${schedule.available_spots} plekken`
+                        : 'Vol'
+                      }
+                    </span>
                   </div>
                 </div>
-                {selectedDate?.getTime() === date.getTime() && (
-                  <div className="mt-1">
-                    <div className="w-2 h-2 rounded-full bg-primary-600"></div>
-                  </div>
-                )}
               </div>
-            </button>
+            </label>
           ))}
         </div>
       </div>
@@ -144,24 +188,33 @@ export default function CourseBookingForm({ course }: CourseBookingFormProps) {
         </div>
       )}
 
+      {/* Availability Warning */}
+      {availability && availability.spots <= 3 && availability.spots > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+          <p className="text-orange-800 text-sm font-medium">
+            ⚠️ Nog maar {availability.spots} {availability.spots === 1 ? 'plek' : 'plekken'} beschikbaar!
+          </p>
+        </div>
+      )}
+
       {/* Enroll Button */}
       {isEnrolled ? (
         <Button size="lg" className="w-full mb-3" disabled>
           <Check className="w-4 h-4 mr-2" />
           Al Ingeschreven
         </Button>
-      ) : selectedDate ? (
+      ) : !availability?.available ? (
+        <Button size="lg" className="w-full mb-3" disabled>
+          Vol - Geen Plekken Beschikbaar
+        </Button>
+      ) : (
         <Button
           size="lg"
           className="w-full mb-3"
           onClick={handleEnroll}
-          disabled={isPending || loading}
+          disabled={isPending || loading || !selectedScheduleId}
         >
-          {isPending ? 'Inschrijven...' : 'Nu Inschrijven'}
-        </Button>
-      ) : (
-        <Button size="lg" className="w-full mb-3" disabled>
-          Selecteer een datum om in te schrijven
+          {isPending ? 'Inschrijven...' : 'Schrijf je in'}
         </Button>
       )}
 

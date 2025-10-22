@@ -1,18 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Menu, X, User, LogOut, LayoutDashboard } from 'lucide-react';
 import Button from './ui/Button';
+import Logo from './Logo';
 import { useUser } from '@/contexts/UserContext';
 import { signOut } from '@/app/actions/auth';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, loading } = useUser();
   const [isPending, startTransition] = useTransition();
+
+  // Detect scroll for sticky header effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -21,20 +31,22 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-secondary-200 sticky top-0 z-50">
+    <header
+      className={`
+        sticky top-0 z-50 transition-all duration-200
+        ${scrolled
+          ? 'bg-white shadow-md'
+          : 'bg-white border-b border-secondary-200'
+        }
+      `}
+    >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/images/branding/logo.svg"
-              alt="TechTrain"
-              width={240}
-              height={69}
-              className="h-15 w-auto"
-              priority
-            />
-          </Link>
+          <Logo
+            size={scrolled ? 'sm' : 'md'}
+            className="transition-all duration-200"
+          />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
