@@ -1,14 +1,12 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { Search, Code, Database, Cloud, Cpu, Container, Lock, Webhook } from 'lucide-react';
+import { Code, Database, Cloud, Cpu, Container, Lock, Webhook, ChevronRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 import CourseCard from '@/components/CourseCard';
+import HomeSearchBar from '@/components/HomeSearchBar';
+import ScheduleList from '@/components/ScheduleList';
 import { getFeaturedCourses, categories as allCategories, courses } from '@/lib/data';
+import { getUpcomingSchedules } from './actions/schedules';
 import type { LucideIcon } from 'lucide-react';
 
 // Map Dutch categories to icons
@@ -30,19 +28,11 @@ const categoriesWithCounts = allCategories.map(category => ({
   count: courses.filter(course => course.category === category).length,
 }));
 
-export default function Home() {
+export default async function Home() {
   const featuredCourses = getFeaturedCourses(4);
-  const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push('/courses');
-    }
-  };
+  // Fetch upcoming schedules from Supabase
+  const { schedules: upcomingSchedules } = await getUpcomingSchedules(6);
 
   return (
     <div>
@@ -63,27 +53,7 @@ export default function Home() {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-2xl">
-            <div className="flex-1 relative group">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5 group-focus-within:text-primary-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Zoek cursussen, technologieën, vaardigheden..."
-                className="pl-12 pr-4 h-14 w-full rounded-xl border-2 border-white/20 bg-white/95 backdrop-blur-sm text-secondary-900 placeholder-secondary-500 focus:ring-4 focus:ring-white/30 focus:border-white transition-all shadow-xl"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="h-14 px-8 bg-white text-primary-600 hover:bg-secondary-50 font-semibold shadow-xl"
-              aria-label="Zoeken"
-            >
-              <Search className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline">Zoeken</span>
-            </Button>
-          </form>
+          <HomeSearchBar />
 
           <Link href="/courses">
             <Button size="lg" className="mt-6">
@@ -198,6 +168,31 @@ export default function Home() {
           {featuredCourses.map((course) => (
             <CourseCard key={course.id} course={course} showPrice={false} />
           ))}
+        </div>
+      </section>
+
+      {/* Upcoming Courses Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">
+                Aankomende Cursussen
+              </h2>
+              <p className="text-lg text-secondary-600">
+                Start binnenkort met je IT-training
+              </p>
+            </div>
+            <Link
+              href="/calendar"
+              className="text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-2 group"
+            >
+              Bekijk kalender
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <ScheduleList schedules={upcomingSchedules} showCourseTitle />
         </div>
       </section>
 

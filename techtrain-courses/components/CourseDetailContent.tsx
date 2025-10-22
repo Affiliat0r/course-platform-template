@@ -5,14 +5,19 @@ import { Course } from '@/types';
 import CourseTabNavigation, { TabType } from './CourseTabNavigation';
 import TrainingFormatSelector from './TrainingFormatSelector';
 import ContactSidebar from './ContactSidebar';
+import ScheduleList from './ScheduleList';
 import { User, Calendar, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import type { CourseSchedule } from '@/app/actions/schedules';
 
 interface CourseDetailContentProps {
   course: Course;
+  schedules?: CourseSchedule[];
+  preselectedScheduleId?: string;
 }
 
-export default function CourseDetailContent({ course }: CourseDetailContentProps) {
+export default function CourseDetailContent({ course, schedules = [], preselectedScheduleId }: CourseDetailContentProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overzicht');
 
   const renderTabContent = () => {
@@ -253,7 +258,30 @@ export default function CourseDetailContent({ course }: CourseDetailContentProps
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-4">
+              <div className="sticky top-4 space-y-6">
+                {/* Schedules Section */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    Beschikbare Data
+                  </h3>
+
+                  {schedules.length > 0 ? (
+                    <ScheduleList schedules={schedules} />
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <p className="text-gray-600 mb-3">
+                        Momenteel geen geplande data voor deze cursus.
+                      </p>
+                      <Link
+                        href="/contact"
+                        className="text-blue-600 hover:text-blue-700 font-medium inline-block"
+                      >
+                        Neem contact op voor bedrijfstraining
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
                 <ContactSidebar />
               </div>
             </div>
