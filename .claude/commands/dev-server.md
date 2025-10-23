@@ -5,26 +5,26 @@ Start the Next.js development server on localhost:3000 for the TechTrain course 
 ## Instructions
 
 1. Check if port 3000 is currently in use
-2. If port 3000 is in use, show which process is using it and inform the user
+2. If port 3000 is in use, **automatically kill the process** (no questions asked)
 3. Navigate to the `techtrain-courses` directory
 4. Start the development server with `npm run dev`
 5. Inform the user that the server is starting
 
-**IMPORTANT:** This command should start the server automatically. The server will run in the foreground.
+**IMPORTANT:** This command forcefully takes over port 3000 by killing any existing process. The server will run in the foreground.
 
 ## Example Workflow
 
 ```bash
-# Navigate to the application directory
-cd techtrain-courses
-
 # Check if port 3000 is in use (Windows)
 netstat -ano | findstr :3000 | findstr LISTENING
 
-# If port is in use, show this message:
-# "⚠️  Port 3000 is already in use!"
-# "To kill the process: taskkill /PID <PID_NUMBER> /F"
-# "Or use a different port: npm run dev -- -p 3001"
+# If port is in use, extract the PID and kill it
+# Example: For "TCP    0.0.0.0:3000    0.0.0.0:0    LISTENING    15036"
+# Extract PID (15036) and kill it:
+taskkill /PID <PID> /F
+
+# Navigate to the application directory
+cd techtrain-courses
 
 # Start the development server
 npm run dev
