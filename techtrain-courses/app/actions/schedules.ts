@@ -15,7 +15,7 @@ export interface CourseSchedule {
     slug: string
     price: number
     category: string
-    image_url?: string
+    thumbnail_url?: string
   }
 }
 
@@ -63,7 +63,7 @@ export async function getUpcomingSchedules(limit: number = 10) {
         slug,
         price,
         category,
-        image_url
+        thumbnail_url
       )
     `)
     .gte('start_date', new Date().toISOString())
