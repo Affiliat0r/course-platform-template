@@ -11,7 +11,7 @@ export default async function CourseDetailPage({
   params: { slug: string }
   searchParams: { schedule?: string }
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch course from Supabase
   const { data: course } = await supabase

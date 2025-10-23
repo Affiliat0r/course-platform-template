@@ -23,7 +23,7 @@ export interface CourseSchedule {
  * Get all schedules for a specific course
  */
 export async function getCourseSchedules(courseId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('course_schedules')
@@ -52,7 +52,7 @@ export async function getCourseSchedules(courseId: string) {
  * Get upcoming schedules across all courses (for homepage)
  */
 export async function getUpcomingSchedules(limit: number = 10) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('course_schedules')
@@ -82,7 +82,7 @@ export async function getUpcomingSchedules(limit: number = 10) {
  * Get schedules by date range (for calendar view)
  */
 export async function getSchedulesByDateRange(startDate: Date, endDate: Date) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('course_schedules')
@@ -111,7 +111,7 @@ export async function getSchedulesByDateRange(startDate: Date, endDate: Date) {
  * Check availability for a specific schedule
  */
 export async function checkScheduleAvailability(scheduleId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('course_schedules')
